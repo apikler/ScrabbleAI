@@ -18,7 +18,7 @@ sub reset {
 	my ($self) = @_;
 	
 	my %bonuses_by_type = (
-		'3w' => [
+		'3W' => [
 			'0,0',
 			'7,0',
 			'14,0',
@@ -28,7 +28,7 @@ sub reset {
 			'0,14',
 			'0,7',
 		],
-		'2w' => [
+		'2W' => [
 			'7,7',
 			'1,1',
 			'2,2',
@@ -46,6 +46,46 @@ sub reset {
 			'2,12',
 			'3,11',
 			'4,10',
+		],
+		'3L' => [
+			'5,1',
+			'9,1',
+			'1,5',
+			'5,5',
+			'9,5',
+			'13,5',
+			'1,9',
+			'5,9',
+			'9,9',
+			'13,9',
+			'5,13',
+			'9,13',
+		],
+		'2L' => [
+			'3,0',
+			'11,0',
+			'6,2',
+			'8,2',
+			'0,3',
+			'7,3',
+			'14,3',
+			'2,6',
+			'6,6',
+			'8,6',
+			'12,6',
+			'3,7',
+			'11,7',
+			'2,8',
+			'6,8',
+			'8,8',
+			'12,8',
+			'0,11',
+			'7,11',
+			'14,11',
+			'6,12',
+			'8,12',
+			'3,14',
+			'11,14',
 		],
 	);
 	
@@ -67,6 +107,21 @@ sub reset {
 	}
 
 	$self->{spaces} = \%spaces;
+}
+
+# Prints a human-readable representation of the spaces on the board (with bonuses).
+# Doesn't print any letters that may be on the board.
+sub print_spaces {
+	my ($self) = @_;
+	
+	for my $i (0..14) {
+		for my $j (0..14) {
+			my $index = "$i,$j";
+			my $bonus = $self->{spaces}{$index}->get_bonus();
+			print $bonus ? "$bonus " : '** ';
+		}
+		print "\n";
+	}
 }
 
 1;

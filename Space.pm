@@ -26,4 +26,10 @@ sub set_letter {
 	$self->{letter} = $letter;
 }
 
+sub get_bonus {
+	my ($self) = @_;
+	
+	return $self->{bonus};
+}
+
 1;
