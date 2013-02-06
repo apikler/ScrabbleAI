@@ -19,12 +19,6 @@ sub new {
 		library => Library->new(),
 	}, $class);
 	
-	print "Started\n";
-	$self->{library}->get_legal_words("animalss");
-	$self->{library}->get_legal_words("abcdefgh");
-	$self->{library}->get_legal_words("ijklmnop");
-	print "Done\n";
-	
 	return $self;
 }
 

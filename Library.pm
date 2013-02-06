@@ -8,13 +8,19 @@ use Data::Dumper;
 use Algorithm::Permute;
 use Algorithm::Combinatorics;
 
+use Node;
+
 sub new {
 	my ($class) = @_;
 	
 	my $self = bless({
-		wordlist => hashref_from_wordlist('ospd.txt'),
-		allwords => hashref_from_wordlist('enable.txt'),
+		shortwords => hashref_from_wordlist('ospd.txt'),
+		longwords => hashref_from_wordlist('enable.txt'),
+		testwords => hashref_from_wordlist('test.txt'),
 	}, $class);
+	
+	my $tree = build_tree([keys %{$self->{shortwords}} ]);
+	my $tree2 = build_tree([keys %{$self->{longwords}} ]);
 	
 	return $self;
 }
@@ -27,23 +33,36 @@ sub hashref_from_wordlist {
 	open(FILE, $filename);
 	while (<FILE>) {
 		chomp;
-		$hashref->{$_} = 1;
+		$hashref->{$_} = 1 if length > 0;
 	}
 	close(FILE);
 	
 	return $hashref;
 }
 
+# Takes an arrayref of words and returns the top Node of the tree representation
+sub build_tree {
+	my ($words) = @_;
+	
+	my $tree = Node->new();
+	for my $word (@$words) {
+		my @letters = split('', $word);
+		$tree->add_word(\@letters);
+	}
+	
+	return $tree;
+}
+
 sub is_common_word {
 	my ($self, $word) = @_;
 	
-	return defined($self->{wordlist}{lc($word)});
+	return defined($self->{shortwords}{lc($word)});
 }
 
 sub is_legal_word {
 	my ($self, $word) = @_;
 	
-	return defined($self->{allwords}{lc($word)});
+	return defined($self->{longwords}{lc($word)});
 }
 
 # $input is a string.
