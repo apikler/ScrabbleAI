@@ -3,7 +3,10 @@ package Board;
 use strict;
 use warnings;
 
+use Data::Dumper;
+
 use Space;
+use Tile;
 
 sub new {
 	my ($class) = @_;
@@ -118,10 +121,62 @@ sub get_space {
 sub foreach_space {
 	my ($self, $sub) = @_;
 	
-	for my $i (0..14) {
-		for my $j (0..14) {
+	for my $j (0..14) {
+		for my $i (0..14) {
 			&$sub($self->get_space($i, $j), $i, $j);
 		}
+	}
+}
+
+# Gets a listref of the tiles, in word order, on the board in the given direction
+# (not including the actual tile specified by $i and $j).
+# The direction is specified by $di and $dj.
+# Example:
+# The row is . . A N .  , and the index of the empty space after the N is 4,7.
+# Calling $self->get_letters_in_direction(4, 7, -1, 0) would return [Tile(A), Tile(N)]
+# Calling $self->get_letters_in_direction(1, 7, 1, 0) would return the same thing.
+# One of $di or $dj must be 1 or -1; the other value must be 0. Otherwise the result is undefined
+# and bad things may happen.
+sub get_letters_in_direction {
+	my ($self, $i, $j, $di, $dj) = @_;
+	
+	my @result;
+	$i += $di;
+	$j += $dj;
+	my $space = $self->get_space($i, $j);
+	
+	while ($space && (my $tile = $space->get_tile())) {		
+		if ($di + $dj == 1) {
+			push (@result, $tile);
+		}
+		elsif ($di + $dj == -1) {
+			unshift (@result, $tile);
+		}
+		$i += $di;
+		$j += $dj;
+		$space = $self->get_space($i, $j);
+	}
+	
+	return \@result;
+}
+
+# Places tiles corresponding to the word (a string) starting at $i, $j.
+# Word is placed down if $down is true, otherwise across.
+# Does not consider any tiles that may already be on the board. For testing only.
+sub place_word {
+	my ($self, $word, $i, $j, $down) = @_;
+	
+	my @letters = split('', $word);
+	my $index = 0;
+	while ((my $space = $self->get_space($i, $j)) && $index < @letters) {
+		$space->set_tile(Tile->new($letters[$index]));
+		if ($down) {
+			$j++;
+		}
+		else {
+			$i++;
+		}
+		$index++;
 	}
 }
 
@@ -134,7 +189,7 @@ sub print_bonuses {
 		my ($space, $i, $j) = @_;
 		my $bonus = $space->get_bonus();
 		print $bonus ? "$bonus " : '** ';
-		print "\n" if $j == 14;
+		print "\n" if $i == 14;
 	});
 }
 
@@ -145,7 +200,7 @@ sub print_spaces {
 		my ($space, $i, $j) = @_;
 		$space->print();
 		print ' ';
-		print "\n" if $j == 14;
+		print "\n" if $i == 14;
 	});
 }
 

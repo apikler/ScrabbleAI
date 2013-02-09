@@ -13,19 +13,18 @@ use Bag;
 sub new {
 	my ($class) = @_;
 	
-	my $board = Board->new();
-	$board->print_spaces();
-	
-	my $aiplayer = Player::AIPlayer->new();
-	
 	my $self = bless({
-		board => $board,
+		board => Board->new(),
 		library => Library->new(),
-		aiplayer => $aiplayer,
+		aiplayer => Player::AIPlayer->new(),
 		bag => Bag->new(),
 	}, $class);
 	
-	$aiplayer->draw_hand($self->{bag});
+	$self->{aiplayer}->draw_hand($self->{bag});
+	
+	$self->{board}->place_word('hello', 6, 10);
+	$self->{board}->place_word('world', 8, 7, 1);
+	$self->{board}->print_spaces();
 	
 	return $self;
 }

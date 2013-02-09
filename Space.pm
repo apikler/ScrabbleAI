@@ -15,7 +15,7 @@ sub new {
 }
 
 sub get_tile {
-	my $self = @_;
+	my ($self) = @_;
 	
 	return $self->{tile};
 }
