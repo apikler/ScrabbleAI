@@ -25,6 +25,8 @@ sub new {
 		bag => Bag->new(),
 	}, $class);
 	
+	$aiplayer->draw_hand($self->{bag});
+	
 	return $self;
 }
 

@@ -51,7 +51,7 @@ sub reset {
 	my ($self) = @_;
 	
 	for my $letter (keys %amounts) {
-		for (my $i = 0; $i < $amounts{$letter}; $i++) {
+		for my $i (1..$amounts{$letter}) {
 			push(@{$self->{letters}}, Letter->new($letter));
 		}
 	}
@@ -61,6 +61,17 @@ sub count {
 	my ($self) = @_;
 	
 	return scalar(@{$self->{letters}});
+}
+
+# Remove and return a Letter from the Bag. Returns undef if the bag is empty.
+sub draw {
+	my ($self) = @_;
+	
+	return undef unless $self->count();
+	
+	my $index = int(rand($self->count()));
+	
+	return scalar(splice(@{$self->{letters}}, $index, 1));
 }
 
 1;
