@@ -3,7 +3,7 @@ package Letter;
 use strict;
 use warnings;
 
-my @values = (
+my %values = (
 	A => 1,
 	B => 3,
 	C => 3,
@@ -36,11 +36,9 @@ my @values = (
 sub new {
 	my ($class, $type) = @_;
 	
-	my $type = uc($type);
-	
 	my $self = bless({
 		type => lc($type),
-		value => $values{$type},
+		value => $values{uc($type)},
 	}, $class);
 	
 	return $self;

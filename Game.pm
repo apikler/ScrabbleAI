@@ -8,6 +8,7 @@ use Data::Dumper;
 use Board;
 use Library;
 use Player::AIPlayer;
+use Bag;
 
 sub new {
 	my ($class) = @_;
@@ -21,10 +22,10 @@ sub new {
 		board => $board,
 		library => Library->new(),
 		aiplayer => $aiplayer,
+		bag => Bag->new(),
 	}, $class);
 	
 	return $self;
 }
-
 
 1;
