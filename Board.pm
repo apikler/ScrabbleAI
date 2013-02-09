@@ -115,30 +115,38 @@ sub get_space {
 	return $self->{spaces}{"$i,$j"};
 }
 
+sub foreach_space {
+	my ($self, $sub) = @_;
+	
+	for my $i (0..14) {
+		for my $j (0..14) {
+			&$sub($self->get_space($i, $j), $i, $j);
+		}
+	}
+}
+
 # Prints a human-readable representation of the bonuses on the board.
 # Doesn't print any tiles that may be on the board.
 sub print_bonuses {
 	my ($self) = @_;
 	
-	for my $i (0..14) {
-		for my $j (0..14) {
-			my $bonus = $self->get_space($i, $j)->get_bonus();
-			print $bonus ? "$bonus " : '** ';
-		}
-		print "\n";
-	}
+	$self->foreach_space(sub {
+		my ($space, $i, $j) = @_;
+		my $bonus = $space->get_bonus();
+		print $bonus ? "$bonus " : '** ';
+		print "\n" if $j == 14;
+	});
 }
 
 sub print_spaces {
 	my ($self) = @_;
 	
-	for my $i (0..14) {
-		for my $j (0..14) {
-			$self->get_space($i, $j)->print();
-			print " ";
-		}
-		print "\n";
-	}
+	$self->foreach_space(sub {
+		my ($space, $i, $j) = @_;
+		$space->print();
+		print ' ';
+		print "\n" if $j == 14;
+	});
 }
 
 1;
