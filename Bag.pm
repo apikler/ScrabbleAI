@@ -3,7 +3,7 @@ package Bag;
 use strict;
 use warnings;
 
-use Letter;
+use Tile;
 
 my %amounts = (
 	A => 9,
@@ -39,7 +39,7 @@ sub new {
 	my ($class) = @_;
 	
 	my $self = bless({
-		letters => [],
+		tiles => [],
 	}, $class);
 	
 	$self->reset();
@@ -50,9 +50,9 @@ sub new {
 sub reset {
 	my ($self) = @_;
 	
-	for my $letter (keys %amounts) {
-		for my $i (1..$amounts{$letter}) {
-			push(@{$self->{letters}}, Letter->new($letter));
+	for my $type (keys %amounts) {
+		for my $i (1..$amounts{$type}) {
+			push(@{$self->{tiles}}, Tile->new($type));
 		}
 	}
 }
@@ -60,10 +60,10 @@ sub reset {
 sub count {
 	my ($self) = @_;
 	
-	return scalar(@{$self->{letters}});
+	return scalar(@{$self->{tiles}});
 }
 
-# Remove and return a Letter from the Bag. Returns undef if the bag is empty.
+# Remove and return a Tile from the Bag. Returns undef if the bag is empty.
 sub draw {
 	my ($self) = @_;
 	
@@ -71,7 +71,7 @@ sub draw {
 	
 	my $index = int(rand($self->count()));
 	
-	return scalar(splice(@{$self->{letters}}, $index, 1));
+	return scalar(splice(@{$self->{tiles}}, $index, 1));
 }
 
 1;

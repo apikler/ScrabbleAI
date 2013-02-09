@@ -1,4 +1,4 @@
-package Letter;
+package Tile;
 
 use strict;
 use warnings;
@@ -50,7 +50,7 @@ sub get_value {
 	return $self->{value};
 }
 
-# Returns the type in lower case.
+# Returns the type (i.e., letter) in lower case.
 sub get {
 	my ($self) = @_;
 	

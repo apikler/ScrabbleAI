@@ -8,22 +8,22 @@ sub new {
 	
 	my $self = bless({
 		bonus => $bonus,
-		letter => undef,
+		tile => undef,
 	}, $class);
 	
 	return $self;
 }
 
-sub get_letter {
+sub get_tile {
 	my $self = @_;
 	
-	return $self->{letter};
+	return $self->{tile};
 }
 
-sub set_letter {
-	my ($self, $letter) = @_;
+sub set_tile {
+	my ($self, $tile) = @_;
 	
-	$self->{letter} = $letter;
+	$self->{tile} = $tile;
 }
 
 sub get_bonus {
@@ -35,7 +35,7 @@ sub get_bonus {
 sub print {
 	my ($self) = @_;
 	
-	print $self->{letter} ? $self->{letter}->get() : '.';
+	print $self->{tile} ? $self->{tile}->get() : '.';
 }
 
 1;

@@ -116,7 +116,7 @@ sub get_space {
 }
 
 # Prints a human-readable representation of the bonuses on the board.
-# Doesn't print any letters that may be on the board.
+# Doesn't print any tiles that may be on the board.
 sub print_bonuses {
 	my ($self) = @_;
 	
