@@ -8,7 +8,7 @@ sub new {
 	
 	my $self = bless({
 		bonus => $bonus,
-		letter => '',
+		letter => undef,
 	}, $class);
 	
 	return $self;
@@ -30,6 +30,12 @@ sub get_bonus {
 	my ($self) = @_;
 	
 	return $self->{bonus};
+}
+
+sub print {
+	my ($self) = @_;
+	
+	print $self->{letter} ? $self->{letter}->get() : '.';
 }
 
 1;

@@ -109,16 +109,33 @@ sub reset {
 	$self->{spaces} = \%spaces;
 }
 
-# Prints a human-readable representation of the spaces on the board (with bonuses).
+sub get_space {
+	my ($self, $i, $j) = @_;
+	
+	return $self->{spaces}{"$i,$j"};
+}
+
+# Prints a human-readable representation of the bonuses on the board.
 # Doesn't print any letters that may be on the board.
+sub print_bonuses {
+	my ($self) = @_;
+	
+	for my $i (0..14) {
+		for my $j (0..14) {
+			my $bonus = $self->get_space($i, $j)->get_bonus();
+			print $bonus ? "$bonus " : '** ';
+		}
+		print "\n";
+	}
+}
+
 sub print_spaces {
 	my ($self) = @_;
 	
 	for my $i (0..14) {
 		for my $j (0..14) {
-			my $index = "$i,$j";
-			my $bonus = $self->{spaces}{$index}->get_bonus();
-			print $bonus ? "$bonus " : '** ';
+			$self->get_space($i, $j)->print();
+			print " ";
 		}
 		print "\n";
 	}

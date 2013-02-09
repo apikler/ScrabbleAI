@@ -39,6 +39,7 @@ sub new {
 	my $type = uc($type);
 	
 	my $self = bless({
+		type => lc($type),
 		value => $values{$type},
 	}, $class);
 	
@@ -46,9 +47,16 @@ sub new {
 }
 
 sub get_value {
-	my $self = shift;
+	my ($self) = @_;
 	
 	return $self->{value};
+}
+
+# Returns the type in lower case.
+sub get {
+	my ($self) = @_;
+	
+	return $self->{type};
 }
 
 1;

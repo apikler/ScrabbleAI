@@ -7,6 +7,7 @@ use Data::Dumper;
 
 use Board;
 use Library;
+use Player::AIPlayer;
 
 sub new {
 	my ($class) = @_;
@@ -14,9 +15,12 @@ sub new {
 	my $board = Board->new();
 	$board->print_spaces();
 	
+	my $aiplayer = Player::AIPlayer->new();
+	
 	my $self = bless({
 		board => $board,
 		library => Library->new(),
+		aiplayer => $aiplayer,
 	}, $class);
 	
 	return $self;
