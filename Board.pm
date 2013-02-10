@@ -11,7 +11,9 @@ use Tile;
 sub new {
 	my ($class) = @_;
 	
-	my $self = bless({}, $class);
+	my $self = bless({
+		transposed => 0,
+	}, $class);
 	$self->reset();
 	
 	return $self;
@@ -126,6 +128,27 @@ sub foreach_space {
 			&$sub($self->get_space($i, $j), $i, $j);
 		}
 	}
+}
+
+# Switches the board's i and j coordinates. Across words become down words,
+# and vice versa.
+sub transpose {
+	my ($self) = @_;
+	
+	my %newspaces;
+	while (my ($index, $space) = each %{$self->{spaces}}) {
+		$index =~ /(\d+)\,(\d+)/;
+		$newspaces{"$2,$1"} = $space;
+	}
+	
+	$self->{spaces} = \%newspaces;
+	$self->{transposed} = $self->{transposed} ? 0 : 1;
+}
+
+sub is_transposed {
+	my ($self) = @_;
+	
+	return $self->{transposed};
 }
 
 # Gets a listref of the tiles, in word order, on the board in the given direction
