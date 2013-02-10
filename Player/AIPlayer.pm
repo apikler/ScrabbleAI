@@ -24,11 +24,7 @@ sub get_move {
 	
 	my $restrictions = $self->get_restrictions();
 	
-	my %toprint;
-	for my $index (keys %$restrictions) {
-		$toprint{$index} = $restrictions->{$index} if @{$restrictions->{$index}};
-	}
-	print Dumper(\%toprint);
+	print Dumper($self->{board}->adjacent_spaces(0, 0));
 }
 
 # Cross-checks. Returns a hashref of
@@ -46,7 +42,7 @@ sub get_restrictions {
 		my ($space, $i, $j) = @_;
 		my $index = "$i,$j";
 		
-		# No need to get restrictions if this space has a tile.
+		# No need to calculate restrictions if this space has a tile.
 		if ($space->get_tile()) {
 			$restrictions{$index} = [];
 			return;

@@ -203,6 +203,21 @@ sub place_word {
 	}
 }
 
+# Returns an arrayref of the 2 to 4 adjacent spaces to the one at $i, $j.
+sub adjacent_spaces {
+	my ($self, $i, $j) = @_;
+	
+	my @adjacencies;
+	for my $di (-1, 1) {
+		for my $dj (-1, 1) {
+			my $space = $self->get_space($i + $di, $j + $dj);
+			push (@adjacencies, $space) if $space;
+		}
+	}
+	
+	return \@adjacencies;
+}
+
 # Prints a human-readable representation of the bonuses on the board.
 # Doesn't print any tiles that may be on the board.
 sub print_bonuses {
