@@ -17,20 +17,25 @@ sub new {
 		testwords => hashref_from_wordlist('test.txt'),
 	}, $class);
 	
+	# Generate tree from the shortwords list plus all the words in longwords that
+	# are more than 8 characters.
+	my @treebase = keys %{$self->{shortwords}};
+	for my $word ( keys %{$self->{longwords}} ) {
+		push (@treebase, $word) if length($word) > 8;
+	}
+	
 	if (-e 'library') {
 		$self->{wordtree} = retrieve('library');
 	}
 	else {
-		# Generate tree from the shortwords list plus all the words in longwords that
-		# are more than 8 characters.
-		my @treebase = keys %{$self->{shortwords}};
-		for my $word ( keys %{$self->{longwords}} ) {
-			push (@treebase, $word) if length($word) > 8;
-		}
-		
 		$self->{wordtree} = build_tree(\@treebase);
 		
 		store($self->{wordtree}, 'library');
+	}
+	
+	$self->{treewords} = {};
+	for my $word (@treebase) {
+		$self->{treewords}{$word} = 1;
 	}
 	
 	return $self;
@@ -74,6 +79,12 @@ sub is_legal_word {
 	my ($self, $word) = @_;
 	
 	return defined($self->{longwords}{lc($word)});
+}
+
+sub is_tree_word {
+	my ($self, $word) = @_;
+	
+	return defined($self->{treewords}{lc($word)});
 }
 
 1;

@@ -57,4 +57,11 @@ sub get {
 	return $self->{type};
 }
 
+# Returns an arrayref of allowed letters based on %values above.
+# (This is the keys of %values, without the '*')
+sub get_allowed_letters {
+	my @letters = grep {$_ ne '*'} keys %values;
+	return \@letters;
+}
+
 1;

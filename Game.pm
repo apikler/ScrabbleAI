@@ -13,10 +13,13 @@ use Bag;
 sub new {
 	my ($class) = @_;
 	
+	my $library = Library->new();
+	my $board = Board->new();
+	
 	my $self = bless({
-		board => Board->new(),
-		library => Library->new(),
-		aiplayer => Player::AIPlayer->new(),
+		board => $board,
+		library => $library,
+		aiplayer => Player::AIPlayer->new($board, $library),
 		bag => Bag->new(),
 	}, $class);
 	
@@ -28,6 +31,8 @@ sub new {
 	$self->{board}->transpose();
 	print "\n";
 	$self->{board}->print_spaces();
+	
+	$self->{aiplayer}->get_move();
 	
 	return $self;
 }
