@@ -207,12 +207,19 @@ sub place_word {
 sub adjacent_spaces {
 	my ($self, $i, $j) = @_;
 	
+	my $changes = [
+		[0, 1],
+		[0, -1],
+		[1, 0],
+		[-1, 0],
+	];
+	
 	my @adjacencies;
-	for my $di (-1, 1) {
-		for my $dj (-1, 1) {
-			my $space = $self->get_space($i + $di, $j + $dj);
-			push (@adjacencies, $space) if $space;
-		}
+	for my $change (@$changes) {
+		my $di = $change->[0];
+		my $dj = $change->[1];
+		my $space = $self->get_space($i + $di, $j + $dj);
+		push (@adjacencies, $space) if $space;
 	}
 	
 	return \@adjacencies;

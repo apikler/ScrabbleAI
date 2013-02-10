@@ -24,7 +24,7 @@ sub get_move {
 	
 	my $restrictions = $self->get_restrictions();
 	
-	print Dumper($self->{board}->adjacent_spaces(0, 0));
+	print Dumper($self->{board}->adjacent_spaces(0, 1));
 }
 
 # Cross-checks. Returns a hashref of
