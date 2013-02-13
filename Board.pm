@@ -156,11 +156,11 @@ sub is_transposed {
 # The direction is specified by $di and $dj.
 # Example:
 # The row is . . A N .  , and the index of the empty space after the N is 4,7.
-# Calling $self->get_letters_in_direction(4, 7, -1, 0) would return [Tile(A), Tile(N)]
-# Calling $self->get_letters_in_direction(1, 7, 1, 0) would return the same thing.
+# Calling $self->get_tiles_in_direction(4, 7, -1, 0) would return [Tile(A), Tile(N)]
+# Calling $self->get_tiles_in_direction(1, 7, 1, 0) would return the same thing.
 # One of $di or $dj must be 1 or -1; the other value must be 0. Otherwise the result is undefined
 # and bad things may happen.
-sub get_letters_in_direction {
+sub get_tiles_in_direction {
 	my ($self, $i, $j, $di, $dj) = @_;
 	
 	my @result;
@@ -207,12 +207,7 @@ sub place_word {
 sub adjacent_spaces {
 	my ($self, $i, $j) = @_;
 	
-	my $changes = [
-		[0, 1],
-		[0, -1],
-		[1, 0],
-		[-1, 0],
-	];
+	my $changes = get_directions();
 	
 	my @adjacencies;
 	for my $change (@$changes) {
@@ -223,6 +218,21 @@ sub adjacent_spaces {
 	}
 	
 	return \@adjacencies;
+}
+
+sub get_directions {
+	return [
+		[0, 1],
+		[0, -1],
+		[1, 0],
+		[-1, 0],
+	];
+}
+
+sub in_bounds {
+	my ($self, $i, $j) = @_;
+	
+	return $i >= 0 && $j >= 0 && $i <= 14 && $j <= 14;
 }
 
 # Prints a human-readable representation of the bonuses on the board.

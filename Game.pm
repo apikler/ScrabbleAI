@@ -27,9 +27,7 @@ sub new {
 	
 	$self->{board}->place_word('hello', 6, 10);
 	$self->{board}->place_word('world', 9, 7, 1);
-	$self->{board}->print_spaces();
-	$self->{board}->transpose();
-	print "\n";
+	$self->{board}->print_bonuses();
 	$self->{board}->print_spaces();
 	
 	$self->{aiplayer}->get_move();

@@ -7,6 +7,7 @@ use warnings;
 use Data::Dumper;
 
 use Tile;
+use Move;
 
 sub new {
 	my ($class, $board, $library) = @_;
@@ -25,8 +26,10 @@ sub get_move {
 	my $restrictions = $self->get_restrictions();
 	my $anchors = $self->get_anchors();
 	
-	print Dumper($anchors);
-	print "Number of anchors: " . scalar(keys %$anchors) . "\n";
+	my $move = Move->new($self->{board});
+	$move->set_word('awful', 8, 7);
+	print Dumper($move->{tiles});
+	print $move->evaluate() . "\n";
 }
 
 # Cross-checks. Returns a hashref of
@@ -50,9 +53,9 @@ sub get_restrictions {
 			return;
 		}
 		
-		my $top_tiles = $self->{board}->get_letters_in_direction($i, $j, 0, -1);
+		my $top_tiles = $self->{board}->get_tiles_in_direction($i, $j, 0, -1);
 		my $top_letters = join('', map {$_->get()} @$top_tiles);
-		my $bottom_tiles = $self->{board}->get_letters_in_direction($i, $j, 0, 1);
+		my $bottom_tiles = $self->{board}->get_tiles_in_direction($i, $j, 0, 1);
 		my $bottom_letters = join('', map {$_->get()} @$bottom_tiles);
 		
 		if (length($top_letters.$bottom_letters) > 0) {
