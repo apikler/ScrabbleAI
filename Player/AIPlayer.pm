@@ -23,13 +23,19 @@ sub new {
 sub get_move {
 	my ($self) = @_;
 	
+	my $moves = $self->get_moves();
+	
+
+}
+
+# Returns an arrayref of all the legal moves the AI can make, sorted in order of decreasing value
+sub get_moves {
+	my ($self) = @_;
+	
 	my $restrictions = $self->get_restrictions();
 	my $anchors = $self->get_anchors();
 	
-	my $move = Move->new($self->{board});
-	$move->set_word('awful', 8, 7);
-	print Dumper($move->{tiles});
-	print $move->evaluate() . "\n";
+	
 }
 
 # Cross-checks. Returns a hashref of

@@ -37,8 +37,12 @@ sub new {
 	my ($class, $type) = @_;
 	
 	my $self = bless({
+		# The type is the kind of tile this is; a lower-case letter, or * if it's a blank.
 		type => lc($type),
 		value => $values{uc($type)},
+		# The letter is the actual letter this tile represents on the board; for non-blank tiles
+		# this is the same as the type. For blanks, this is * until set_blank_letter is called.
+		letter => lc($type),
 	}, $class);
 	
 	return $self;
@@ -50,11 +54,24 @@ sub get_value {
 	return $self->{value};
 }
 
-# Returns the type (i.e., letter) in lower case.
+# Returns the letter of this tile in lower case.
 sub get {
 	my ($self) = @_;
 	
-	return $self->{type};
+	return $self->{letter};
+}
+
+# If this tile is a blank, sets the letter. Otherwise, does nothing.
+sub set_blank_letter {
+	my ($self, $letter) = @_;
+	
+	$self->{letter} = lc($letter) if $self->is_blank();
+}
+
+sub is_blank {
+	my ($self) = @_;
+	
+	return $self->{type} eq '*';
 }
 
 # Returns an arrayref of allowed letters based on %values above.
