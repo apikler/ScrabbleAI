@@ -23,9 +23,16 @@ sub new {
 sub get_move {
 	my ($self) = @_;
 	
-	my $moves = $self->get_moves();
+	# my $moves = $self->get_moves();
 	
-
+	print "Rack: " . Dumper($self->{rack});
+	if ($self->{rack}->contains('e')) {
+		print "Rack contains an e!\n";
+	}
+	
+	print "Removing an e from rack: " . Dumper($self->{rack}->remove('e')) . "\n";
+	print "Now the rack is: " . Dumper($self->{rack});
+	print "Rack size is: " . $self->{rack}->size() . "\n";
 }
 
 # Returns an arrayref of all the legal moves the AI can make, sorted in order of decreasing value
@@ -35,7 +42,34 @@ sub get_moves {
 	my $restrictions = $self->get_restrictions();
 	my $anchors = $self->get_anchors();
 	
+	while (my ($location, $anchor) = each %$anchors) {
+		$location =~ /(\d+)\,(\d+)/;
+		my ($i, $j) = ($1, $2);
+		
+		# Backtrack to find the number of spaces before an anchor to the left of $i, $j
+		my $limit = 0;
+		my $new_i = $i;
+		while (1) {
+			$new_i--;
+			if ($self->{board}->in_bounds($new_i, $j) && !defined($anchors->{"$new_i,$j"})) {
+				$limit++;
+			}
+			else {
+				last;
+			}
+		}
+		
+		$self->left_part('', $self->{library}->get_tree(), $limit, $i, $j);
+	}
+}
+
+sub left_part {
+	my ($self, $partial_word, $node, $limit, $i, $j) = @_;
 	
+	$self->extend_right($partial_word, $node, $i, $j);
+	if ($limit > 0) {
+		#TODO
+	}
 }
 
 # Cross-checks. Returns a hashref of

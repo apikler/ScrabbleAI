@@ -69,6 +69,13 @@ sub build_tree {
 	return $tree;
 }
 
+# Returns the top-level node of the word tree.
+sub get_tree {
+	my ($self) = @_;
+	
+	return $self->{wordtree};
+}
+
 sub is_common_word {
 	my ($self, $word) = @_;
 	
