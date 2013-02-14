@@ -3,6 +3,8 @@ package Player;
 use strict;
 use warnings;
 
+use Data::Dumper;
+
 use Tile;
 use Rack;
 

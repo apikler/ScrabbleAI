@@ -23,24 +23,21 @@ sub new {
 sub get_move {
 	my ($self) = @_;
 	
-	# my $moves = $self->get_moves();
+	$self->{moves} = [];
+	$self->get_moves();
 	
-	print "Rack: " . Dumper($self->{rack});
-	if ($self->{rack}->contains('e')) {
-		print "Rack contains an e!\n";
-	}
-	
-	print "Removing an e from rack: " . Dumper($self->{rack}->remove('e')) . "\n";
-	print "Now the rack is: " . Dumper($self->{rack});
-	print "Rack size is: " . $self->{rack}->size() . "\n";
+	my @moves = sort {$a->{value} <=> $b->{value}} @{$self->{moves}};
+	print "Rack: " . $self->{rack}->str() . "\n";
+	my $best_move = $moves[0];
+	print "best move: " . Dumper($best_move->{tiles});
 }
 
 # Returns an arrayref of all the legal moves the AI can make, sorted in order of decreasing value
 sub get_moves {
 	my ($self) = @_;
 	
-	my $restrictions = $self->get_restrictions();
 	my $anchors = $self->get_anchors();
+	my $restrictions = $self->get_restrictions();
 	
 	while (my ($location, $anchor) = each %$anchors) {
 		$location =~ /(\d+)\,(\d+)/;
@@ -59,16 +56,93 @@ sub get_moves {
 			}
 		}
 		
-		$self->left_part('', $self->{library}->get_tree(), $limit, $i, $j);
+		$self->left_part('', $self->{library}->get_tree(), $limit, $restrictions, $i, $j);
 	}
 }
 
 sub left_part {
-	my ($self, $partial_word, $node, $limit, $i, $j) = @_;
+	my ($self, $partial_word, $node, $limit, $restrictions, $i, $j) = @_;
 	
-	$self->extend_right($partial_word, $node, $i, $j);
+	# print "left part limit: $limit, partial word: $partial_word \n";
+	# print "rack: " . $self->{rack}->str() ."\n";
+	
+	$self->extend_right($partial_word, $node, $restrictions, $i, $j);
 	if ($limit > 0) {
-		#TODO
+		for my $letter (@{$node->get_edges()}) {
+			#print "letter: $letter \n";
+			#print "rack: " . $self->{rack}->str() ."\n";
+			my $tile;
+			if ($self->{rack}->contains($letter)) {
+				$tile = $self->{rack}->remove($letter);
+			}
+			elsif ($self->{rack}->contains('*')) {
+				$tile = $self->{rack}->remove('*');
+			}
+			# print "rack after: " . $self->{rack}->str() ."\n";
+			
+			if ($tile) {
+				$self->left_part(
+					$partial_word . $letter,
+					$node->get_child($letter),
+					$limit - 1,
+					$restrictions,
+					$i,
+					$j,
+				);
+				$self->{rack}->add_tile($tile);
+			}
+		}
+	}
+}
+
+sub extend_right {
+	my ($self, $partial_word, $node, $restrictions, $i, $j) = @_;
+	
+	my $board = $self->{board};
+	return unless $board->in_bounds($i, $j);
+	
+	my $board_tile = $board->get_space($i, $j)->get_tile();
+	unless ($board_tile) {
+		if ($node->is_endpoint()) {
+			my $move = Move->new($board);
+			$move->set_word_reverse($partial_word, $i, $j);
+			$move->evaluate();
+			push(@{$self->{moves}}, $move);
+		}
+		
+		for my $letter (@{$node->get_edges()}) {
+			my $tile;
+			if ($self->{rack}->contains($letter)) {
+				$tile = $self->{rack}->remove($letter);
+			}
+			elsif ($self->{rack}->contains('*')) {
+				$tile = $self->{rack}->remove('*');
+			}
+			
+			if ($tile && passes_restrictions($tile->get(), $restrictions, $i, $j)) {
+				$self->extend_right(
+					$partial_word . $letter, 
+					$node->get_child($letter),
+					$restrictions,
+					$i + 1,
+					$j,
+				);
+			}
+			$self->{rack}->add_tile($tile) if $tile;
+		}
+	}
+	else {
+		my $letter = $board_tile->get();
+		my $new_node = $node->get_child($letter);
+		if ($new_node) {
+			$self->extend_right(
+				$partial_word . $letter, 
+				$new_node,
+				$restrictions,
+				$i + 1,
+				$j,
+			);
+		}
 	}
 }
 
@@ -118,6 +192,23 @@ sub get_restrictions {
 	});
 	
 	return \%restrictions;
+}
+
+# Returns 1 if $letter is OK to place at $i, $j, give $restrictions as generated 
+# by get_restrictions. 
+sub passes_restrictions {
+	my ($letter, $restrictions, $i, $j) = @_;
+	
+	return 1 if $letter eq '*';
+	
+	my $restriction = $restrictions->{"$i,$j"};
+	return 1 unless $restriction;
+	
+	for my $allowed (@$restriction) {
+		return 1 if $allowed eq $letter;
+	}
+	
+	return 0;
 }
 
 # Returns hashref of {"$i,$j" => Space} for each space that is adjacent to at least one other tile

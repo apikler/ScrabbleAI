@@ -16,6 +16,7 @@ sub new {
 	my $self = bless({
 		tiles => {},	# Hashref of 'i,j' => Tile being placed
 		board => $board,
+		value => 0,
 	}, $class);
 	
 	return $self;
@@ -34,6 +35,22 @@ sub set_word {
 		$i += $di;
 		$j += $dj;
 		$index++;
+	}
+}
+
+sub set_word_reverse {
+	my ($self, $word, $i, $j, $up) = @_;
+	
+	my ($di, $dj) = $up ? (0, -1) : (-1, 0);
+	my $index = length($word) - 1;
+	while ($self->{board}->in_bounds($i, $j) && $index >= 0) {
+		my $tile_on_board = $self->{board}->get_space($i, $j)->get_tile();
+		unless ($tile_on_board) {
+			$self->{tiles}{"$i,$j"} = Tile->new(substr($word, $index, 1));
+		}
+		$i += $di;
+		$j += $dj;
+		$index--;
 	}
 }
 
@@ -83,10 +100,17 @@ sub evaluate {
 	}
 	
 	# Total sum is score of tiles already on board + score of new tiles, including bonuses
-	return $sum_on_board + $new_sum;
+	my $score = $sum_on_board + $new_sum;
+	$self->{value} = $score;
+	return $score;
 }
 
-
+sub get_value {
+	my ($self) = @_;
+	
+	$self->evaluate() if $self->{value} == 0;
+	return $self->{value};
+}
 
 
 

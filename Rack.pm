@@ -49,4 +49,15 @@ sub size {
 	return scalar(@{$self->{tiles}});
 }
 
+sub str {
+	my ($self) = @_;
+	
+	my $s = '';
+	for my $tile (@{$self->{tiles}}) {
+		$s .= $tile->get();
+	}
+	
+	return $s;
+}
+
 1;

@@ -25,6 +25,12 @@ sub get_child {
 	return defined($self->{children}{$letter}) ? $self->{children}{$letter} : undef;
 }
 
+sub get_edges {
+	my ($self) = @_;
+	
+	return [keys %{$self->{children}}];
+}
+
 # Adds the given Node as a child at $letter. Overwrites any existing child for
 # that letter.
 sub set_child {
