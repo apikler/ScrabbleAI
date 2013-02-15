@@ -75,9 +75,9 @@ sub is_blank {
 }
 
 # Returns an arrayref of allowed letters based on %values above.
-# (This is the keys of %values, without the '*')
+# (This is the keys of %values, lower case, without the '*')
 sub get_allowed_letters {
-	my @letters = grep {$_ ne '*'} keys %values;
+	my @letters = map {lc($_)} grep {$_ ne '*'} keys %values;
 	return \@letters;
 }
 

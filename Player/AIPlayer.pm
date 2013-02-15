@@ -8,6 +8,7 @@ use Data::Dumper;
 
 use Tile;
 use Move;
+use Node;
 
 sub new {
 	my ($class, $board, $library) = @_;
@@ -26,7 +27,7 @@ sub get_move {
 	$self->{moves} = [];
 	$self->get_moves();
 	
-	my @moves = sort {$a->{value} <=> $b->{value}} @{$self->{moves}};
+	my @moves = sort {$b->{value} <=> $a->{value}} @{$self->{moves}};
 	print "Rack: " . $self->{rack}->str() . "\n";
 	my $best_move = $moves[0];
 	print "best move: " . Dumper($best_move->{tiles});
@@ -38,31 +39,44 @@ sub get_moves {
 	
 	my $anchors = $self->get_anchors();
 	my $restrictions = $self->get_restrictions();
+	# print "restrictions: " . Dumper($restrictions);
 	
 	while (my ($location, $anchor) = each %$anchors) {
 		$location =~ /(\d+)\,(\d+)/;
 		my ($i, $j) = ($1, $2);
 		
-		# Backtrack to find the number of spaces before an anchor to the left of $i, $j
-		my $limit = 0;
-		my $new_i = $i;
-		while (1) {
-			$new_i--;
-			if ($self->{board}->in_bounds($new_i, $j) && !defined($anchors->{"$new_i,$j"})) {
-				$limit++;
-			}
-			else {
-				last;
-			}
-		}
+		# warn "location: $i, $j";
 		
-		$self->left_part('', $self->{library}->get_tree(), $limit, $restrictions, $i, $j);
+		my $root = $self->{library}->get_tree();
+		# Get the "prefix", i.e. the tiles on the board to the left of this anchor
+		my $prefix_tiles = $self->{board}->get_tiles_in_direction($i, $j, -1, 0);
+		if (@$prefix_tiles) {
+			my @prefix = map {$_->get()} @$prefix_tiles;
+			my $node = Node::get_node($root, @prefix);
+			# warn "prefix: ". Dumper(\@prefix);
+			$self->extend_right(join('', @prefix), $node, $restrictions, $i, $j);
+		}
+		else {
+			# Backtrack to find the number of spaces before an anchor to the left of $i, $j
+			my $limit = 0;
+			my $new_i = $i;
+			while (1) {
+				$new_i--;
+				if ($self->{board}->in_bounds($new_i, $j) && !defined($anchors->{"$new_i,$j"})) {
+					$limit++;
+				}
+				else {
+					last;
+				}
+			}
+			
+			$self->left_part('', $root, $limit, $restrictions, $i, $j);
+		}
 	}
 }
 
 sub left_part {
 	my ($self, $partial_word, $node, $limit, $restrictions, $i, $j) = @_;
-	
 	# print "left part limit: $limit, partial word: $partial_word \n";
 	# print "rack: " . $self->{rack}->str() ."\n";
 	
@@ -95,19 +109,34 @@ sub left_part {
 	}
 }
 
+sub save_move {
+	my ($self, $word, $i, $j) = @_;
+	
+	my $move = Move->new($self->{board});
+	$move->set_word_reverse($word, $i, $j);
+	$move->evaluate();
+	push(@{$self->{moves}}, $move);
+}
+
 sub extend_right {
 	my ($self, $partial_word, $node, $restrictions, $i, $j) = @_;
 	
+	# warn "partial word: $partial_word, $i, $j";
+	
+	# TODO: clean this up
 	my $board = $self->{board};
+	my $width = $board->get_width();
+	return unless $board->in_bounds($i, $j) || $i == $width;
+	if (($i == $width) && $node->is_endpoint()) {
+		$self->save_move($partial_word, $i-1, $j);
+		return;
+	}
 	return unless $board->in_bounds($i, $j);
 	
 	my $board_tile = $board->get_space($i, $j)->get_tile();
 	unless ($board_tile) {
 		if ($node->is_endpoint()) {
-			my $move = Move->new($board);
-			$move->set_word_reverse($partial_word, $i, $j);
-			$move->evaluate();
-			push(@{$self->{moves}}, $move);
+			$self->save_move($partial_word, $i-1, $j);
 		}
 		
 		for my $letter (@{$node->get_edges()}) {
@@ -150,7 +179,8 @@ sub extend_right {
 # {'i,j' => arrayref of allowed letters}
 # where "allowed letters" is an arrayref of letters that can be placed
 # in the space at i,j to create a legal word vertically.
-# An empty arrayref means any tile is allowed.
+# An empty arrayref means no tiles are allowed.
+# A missing entry means any tiles are allowed.
 sub get_restrictions {
 	my ($self) = @_;
 	
@@ -163,7 +193,6 @@ sub get_restrictions {
 		
 		# No need to calculate restrictions if this space has a tile.
 		if ($space->get_tile()) {
-			$restrictions{$index} = [];
 			return;
 		}
 		
@@ -185,10 +214,6 @@ sub get_restrictions {
 			
 			$restrictions{$index} = \@restriction;
 		}
-		else {
-			# There are no tiles vertically adjacent to this space, so there are no restrictions.
-			$restrictions{$index} = [];
-		}
 	});
 	
 	return \%restrictions;
@@ -201,13 +226,14 @@ sub passes_restrictions {
 	
 	return 1 if $letter eq '*';
 	
+	return 1 unless defined $restrictions->{"$i,$j"};
 	my $restriction = $restrictions->{"$i,$j"};
-	return 1 unless $restriction;
 	
 	for my $allowed (@$restriction) {
 		return 1 if $allowed eq $letter;
 	}
 	
+	# print "$letter at $i, $j is not allowed!\n";
 	return 0;
 }
 

@@ -38,6 +38,7 @@ sub set_word {
 	}
 }
 
+# TODO: Fix bug with putting blanks on board where they become actual letter tiles with values
 sub set_word_reverse {
 	my ($self, $word, $i, $j, $up) = @_;
 	

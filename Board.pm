@@ -151,7 +151,7 @@ sub is_transposed {
 	return $self->{transposed};
 }
 
-# Gets a listref of the tiles, in word order, on the board in the given direction
+# Gets an arrayref of the tiles, in word order, on the board in the given direction
 # (not including the actual tile specified by $i and $j).
 # The direction is specified by $di and $dj.
 # Example:
@@ -229,10 +229,17 @@ sub get_directions {
 	];
 }
 
+sub get_width {
+	my ($self) = @_;
+	
+	return 15;
+}
+
 sub in_bounds {
 	my ($self, $i, $j) = @_;
 	
-	return $i >= 0 && $j >= 0 && $i <= 14 && $j <= 14;
+	my $width = $self->get_width();
+	return $i >= 0 && $j >= 0 && $i < $width && $j < $width;
 }
 
 # Prints a human-readable representation of the bonuses on the board.

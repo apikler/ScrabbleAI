@@ -24,9 +24,9 @@ sub new {
 	}, $class);
 	
 	$self->{aiplayer}->draw_hand($self->{bag});
+	$self->{aiplayer}->{rack}->set("abaft");
 	
-	# $self->{board}->place_word('hello', 6, 10);
-	$self->{board}->place_word('world', 9, 7, 1);
+	$self->{board}->place_word('test', 14, 5, 1);
 	# $self->{board}->print_bonuses();
 	$self->{board}->print_spaces();
 	

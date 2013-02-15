@@ -21,6 +21,17 @@ sub add_tile {
 	push(@{$self->{tiles}}, $tile);
 }
 
+# Sets the contents of the rack to the tiles in $string.
+sub set {
+	my ($self, $string) = @_;
+	
+	$self->{tiles} = [];
+	my @letters = split('', $string);
+	for my $letter (@letters) {
+		$self->add_tile(Tile->new($letter));
+	}
+}
+
 sub contains {
 	my ($self, $letter) = @_;
 	

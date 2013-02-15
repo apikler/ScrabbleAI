@@ -70,4 +70,20 @@ sub is_endpoint {
 	return $self->{endpoint};
 }
 
+# Traverse the tree, from the given node, using the path in the prefix (an array of characters).
+# Returns the resulting node, or undef if the traversal isn't possible.
+sub get_node {
+	my ($node, @prefix) = @_;
+	
+	return $node unless @prefix;
+	
+	my $edge = shift @prefix;
+	if (my $child = $node->get_child($edge)) {
+		return get_node($child, @prefix);
+	}
+	else {
+		return undef;
+	}
+}
+
 1;
