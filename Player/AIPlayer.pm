@@ -45,8 +45,8 @@ sub get_moves {
 		$location =~ /(\d+)\,(\d+)/;
 		my ($i, $j) = ($1, $2);
 		
-		# warn "location: $i, $j";
-		
+		next unless $i == 13 && $j == 1;
+				
 		my $root = $self->{library}->get_tree();
 		# Get the "prefix", i.e. the tiles on the board to the left of this anchor
 		my $prefix_tiles = $self->{board}->get_tiles_in_direction($i, $j, -1, 0);
@@ -120,25 +120,12 @@ sub save_move {
 
 sub extend_right {
 	my ($self, $partial_word, $node, $restrictions, $i, $j) = @_;
-	
-	# warn "partial word: $partial_word, $i, $j";
-	
-	# TODO: clean this up
+
 	my $board = $self->{board};
-	my $width = $board->get_width();
-	return unless $board->in_bounds($i, $j) || $i == $width;
-	if (($i == $width) && $node->is_endpoint()) {
-		$self->save_move($partial_word, $i-1, $j);
-		return;
-	}
 	return unless $board->in_bounds($i, $j);
 	
 	my $board_tile = $board->get_space($i, $j)->get_tile();
 	unless ($board_tile) {
-		if ($node->is_endpoint()) {
-			$self->save_move($partial_word, $i-1, $j);
-		}
-		
 		for my $letter (@{$node->get_edges()}) {
 			my $tile;
 			if ($self->{rack}->contains($letter)) {
@@ -149,28 +136,20 @@ sub extend_right {
 			}
 			
 			if ($tile && passes_restrictions($tile->get(), $restrictions, $i, $j)) {
-				$self->extend_right(
-					$partial_word . $letter, 
-					$node->get_child($letter),
-					$restrictions,
-					$i + 1,
-					$j,
-				);
+				warn "partial word: $partial_word, $i, $j";
+				my $child = $node->get_child($letter);
+				$self->save_move($partial_word.$letter, $i, $j) if $child->is_endpoint();
+				$self->extend_right($partial_word.$letter, $child, $restrictions, $i+1, $j);
 			}
 			$self->{rack}->add_tile($tile) if $tile;
 		}
 	}
 	else {
 		my $letter = $board_tile->get();
-		my $new_node = $node->get_child($letter);
-		if ($new_node) {
-			$self->extend_right(
-				$partial_word . $letter, 
-				$new_node,
-				$restrictions,
-				$i + 1,
-				$j,
-			);
+		my $child = $node->get_child($letter);
+		if ($child) {
+			$self->save_move($partial_word.$letter, $i, $j) if $child->is_endpoint();
+			$self->extend_right($partial_word.$letter, $child, $restrictions, $i+1, $j);
 		}
 	}
 }

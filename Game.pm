@@ -26,7 +26,7 @@ sub new {
 	$self->{aiplayer}->draw_hand($self->{bag});
 	$self->{aiplayer}->{rack}->set("abaft");
 	
-	$self->{board}->place_word('test', 14, 5, 1);
+	$self->{board}->place_word('test', 14, 1, 1);
 	# $self->{board}->print_bonuses();
 	$self->{board}->print_spaces();
 	
