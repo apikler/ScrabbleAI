@@ -35,7 +35,7 @@ sub get_bonus {
 sub print {
 	my ($self) = @_;
 	
-	print $self->{tile} ? $self->{tile}->get() : '.';
+	print $self->{tile} ? uc($self->{tile}->get()) : '.';
 }
 
 1;
