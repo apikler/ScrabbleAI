@@ -24,13 +24,15 @@ sub new {
 	}, $class);
 	
 	$self->{aiplayer}->draw_hand($self->{bag});
-	$self->{aiplayer}->{rack}->set("abaft");
+	# $self->{aiplayer}->{rack}->set("efitp**");
 	
-	$self->{board}->place_word('test', 14, 1, 1);
+	$self->{board}->place_word('test', 14, 5, 1);
 	# $self->{board}->print_bonuses();
 	$self->{board}->print_spaces();
 	
-	$self->{aiplayer}->get_move();
+	my $move = $self->{aiplayer}->get_move();
+	$board->make_move($move);
+	$self->{board}->print_spaces();
 	
 	return $self;
 }

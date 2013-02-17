@@ -113,6 +113,11 @@ sub get_value {
 	return $self->{value};
 }
 
+sub get_tiles {
+	my ($self) = @_;
+	
+	return $self->{tiles};
+}
 
 
 1;

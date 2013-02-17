@@ -266,4 +266,14 @@ sub print_spaces {
 	});
 }
 
+sub make_move {
+	my ($self, $move) = @_;
+	
+	while (my ($location, $tile) = each %{$move->get_tiles()}) {
+		$location =~ /(\d+)\,(\d+)/;
+		my ($i, $j) = ($1, $2);
+		
+		$self->get_space($i, $j)->set_tile($tile);
+	}
+}
 1;

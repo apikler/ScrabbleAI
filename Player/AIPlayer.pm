@@ -31,6 +31,7 @@ sub get_move {
 	print "Rack: " . $self->{rack}->str() . "\n";
 	my $best_move = $moves[0];
 	print "best move: " . Dumper($best_move->{tiles});
+	return $best_move;
 }
 
 # Returns an arrayref of all the legal moves the AI can make, sorted in order of decreasing value
@@ -44,9 +45,7 @@ sub get_moves {
 	while (my ($location, $anchor) = each %$anchors) {
 		$location =~ /(\d+)\,(\d+)/;
 		my ($i, $j) = ($1, $2);
-		
-		next unless $i == 13 && $j == 1;
-				
+						
 		my $root = $self->{library}->get_tree();
 		# Get the "prefix", i.e. the tiles on the board to the left of this anchor
 		my $prefix_tiles = $self->{board}->get_tiles_in_direction($i, $j, -1, 0);
@@ -135,10 +134,14 @@ sub extend_right {
 				$tile = $self->{rack}->remove('*');
 			}
 			
-			if ($tile && passes_restrictions($tile->get(), $restrictions, $i, $j)) {
-				warn "partial word: $partial_word, $i, $j";
+			if ($tile && passes_restrictions($letter, $restrictions, $i, $j)) {
 				my $child = $node->get_child($letter);
-				$self->save_move($partial_word.$letter, $i, $j) if $child->is_endpoint();
+				if ($child->is_endpoint()) {
+					my $space = $board->get_space($i+1, $j);
+					if (!defined($space) || !($space->get_tile())) {
+						$self->save_move($partial_word.$letter, $i, $j) if $child->is_endpoint();
+					}
+				}
 				$self->extend_right($partial_word.$letter, $child, $restrictions, $i+1, $j);
 			}
 			$self->{rack}->add_tile($tile) if $tile;
@@ -148,7 +151,12 @@ sub extend_right {
 		my $letter = $board_tile->get();
 		my $child = $node->get_child($letter);
 		if ($child) {
-			$self->save_move($partial_word.$letter, $i, $j) if $child->is_endpoint();
+			if ($child->is_endpoint()) {
+				my $space = $board->get_space($i+1, $j);
+				if (!defined($space) || !($space->get_tile())) {
+					$self->save_move($partial_word.$letter, $i, $j) if $child->is_endpoint();
+				}
+			}
 			$self->extend_right($partial_word.$letter, $child, $restrictions, $i+1, $j);
 		}
 	}
