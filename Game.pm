@@ -23,16 +23,13 @@ sub new {
 		bag => Bag->new(),
 	}, $class);
 	
-	$self->{aiplayer}->draw_hand($self->{bag});
-	# $self->{aiplayer}->{rack}->set("efitp**");
-	
-	$self->{board}->place_word('test', 14, 5, 1);
-	# $self->{board}->print_bonuses();
-	$self->{board}->print_spaces();
-	
-	my $move = $self->{aiplayer}->get_move();
-	$board->make_move($move);
-	$self->{board}->print_spaces();
+	for my $i (0..10) {
+		$self->{aiplayer}{rack}{tiles} = [];
+		$self->{aiplayer}->draw_hand($self->{bag});
+		my $move = $self->{aiplayer}->get_move();
+		$board->make_move($move);
+		$self->{board}->print_spaces();
+	}
 	
 	return $self;
 }

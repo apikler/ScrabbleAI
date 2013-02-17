@@ -24,13 +24,23 @@ sub new {
 sub get_move {
 	my ($self) = @_;
 	
+	print "Rack: " . $self->{rack}->str() . "\n";
+	
 	$self->{moves} = [];
 	$self->get_moves();
+	my @across_moves = @{$self->{moves}};
 	
-	my @moves = sort {$b->{value} <=> $a->{value}} @{$self->{moves}};
-	print "Rack: " . $self->{rack}->str() . "\n";
+	$self->{moves} = [];
+	$self->{board}->transpose();
+	$self->get_moves();
+	map {$_->transpose()} @{$self->{moves}};
+	my @down_moves = @{$self->{moves}};
+	$self->{board}->transpose();
+	
+	my @moves = sort {$b->{value} <=> $a->{value}} (@across_moves, @down_moves);	
+	
 	my $best_move = $moves[0];
-	print "best move: " . Dumper($best_move->{tiles});
+	# print "best move: " . Dumper($best_move->{tiles});
 	return $best_move;
 }
 

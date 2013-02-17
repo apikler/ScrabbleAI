@@ -119,5 +119,18 @@ sub get_tiles {
 	return $self->{tiles};
 }
 
+# Switches the move's i and j coordinates.
+sub transpose {
+	my ($self) = @_;
+	
+	my %newtiles;
+	while (my ($index, $tile) = each %{$self->{tiles}}) {
+		$index =~ /(\d+)\,(\d+)/;
+		$newtiles{"$2,$1"} = $tile;
+	}
+	
+	$self->{tiles} = \%newtiles;
+}
+
 
 1;
