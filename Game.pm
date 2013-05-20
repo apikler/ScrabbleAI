@@ -10,6 +10,8 @@ use Library;
 use Player::AIPlayer;
 use Bag;
 
+use GUI::Window;
+
 sub new {
 	my ($class) = @_;
 	
@@ -21,15 +23,10 @@ sub new {
 		library => $library,
 		aiplayer => Player::AIPlayer->new($board, $library),
 		bag => Bag->new(),
+		window => GUI::Window->new(),
 	}, $class);
 	
-	for my $i (0..10) {
-		$self->{aiplayer}{rack}{tiles} = [];
-		$self->{aiplayer}->draw_hand($self->{bag});
-		my $move = $self->{aiplayer}->get_move();
-		$board->make_move($move);
-		$self->{board}->print_spaces();
-	}
+	$self->{window}->launch();
 	
 	return $self;
 }
