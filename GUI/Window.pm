@@ -4,6 +4,9 @@ use strict;
 use warnings;
 
 use Gtk2 '-init';
+use Gnome2::Canvas;
+
+use Data::Dumper;
 
 sub new {
 	my ($class, $game) = @_;
@@ -20,7 +23,7 @@ sub launch {
 	
 	my $window = Gtk2::Window->new();
 	$window->set_title('Scrabble');
-	$window->set_default_size(400, 400);
+	$window->set_default_size(500, 500);
 	$window->signal_connect(destroy => sub { Gtk2->main_quit(); });
 	$self->{window} = $window;
 	
@@ -29,6 +32,7 @@ sub launch {
 	$self->{vbox} = $vbox;
 
 	$self->draw_menu_bar();
+	$self->draw_canvas();
 
 	$window->show_all();
 	Gtk2->main();
@@ -61,6 +65,47 @@ sub draw_menu_bar {
 	$menubar->append($helpmenu_item);
 	
 	$self->{vbox}->pack_start($menubar, 0, 0, 0);
+}
+
+sub draw_canvas {
+	my ($self) = @_;
+	
+	my $canvas = Gnome2::Canvas->new();
+	$self->{canvas} = $canvas;
+	$canvas->set_center_scroll_region(0);
+	
+	my $white = Gtk2::Gdk::Color->new (0xFFFF,0xFFFF,0xFFFF);
+	$canvas->modify_bg('normal',$white);
+	my $size = $canvas->size_request();
+	warn $size->width() . " " . $size->height();
+	
+	my $root = $canvas->root();
+	Gnome2::Canvas::Item->new(
+		$root,
+		'Gnome2::Canvas::Text',
+		x => 20,
+		y => 15,
+		fill_color => 'black',
+		font => 'Sans 14',
+		anchor => 'GTK_ANCHOR_NW',
+		text => 'Hello world!'
+	);
+	my $box = Gnome2::Canvas::Item->new($root, 'Gnome2::Canvas::Rect',
+		x1 => 10, y1 => 10,
+		x2 => 150, y2 => 135,
+		fill_color => 'red',
+		outline_color => 'black',
+	);
+	
+	$box->lower_to_bottom();
+	$root->signal_connect(event => sub {
+		my ($item, $event) = @_;
+		warn "event: " . Dumper($event);
+		my $req = $canvas->allocation();
+		warn $req->width() . " " . $req->height();
+	});
+	
+	$self->{vbox}->pack_start($canvas, 1, 1, 0);
 }
 
 1;
