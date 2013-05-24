@@ -10,8 +10,6 @@ use Library;
 use Player::AIPlayer;
 use Bag;
 
-use GUI::Window;
-
 sub new {
 	my ($class) = @_;
 	
@@ -23,10 +21,7 @@ sub new {
 		library => $library,
 		aiplayer => Player::AIPlayer->new($board, $library),
 		bag => Bag->new(),
-		window => GUI::Window->new(),
 	}, $class);
-	
-	$self->{window}->launch();
 	
 	return $self;
 }

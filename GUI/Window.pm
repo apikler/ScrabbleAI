@@ -6,36 +6,34 @@ use warnings;
 use Gtk2 '-init';
 use Gnome2::Canvas;
 
+use base qw(Gtk2::Window);
+
+use Game;
+
 use Data::Dumper;
 
 sub new {
 	my ($class, $game) = @_;
 	
-	my $self = bless({
-		game => $game,
-	}, $class);
+	my $self = $class->SUPER::new();
+	bless($self, $class);
 	
-	return $self;
-}
-
-sub launch {
-	my ($self) = @_;
+	$self->{game} = $game;
 	
-	my $window = Gtk2::Window->new();
-	$window->set_title('Scrabble');
-	$window->set_default_size(500, 500);
-	$window->signal_connect(destroy => sub { Gtk2->main_quit(); });
-	$self->{window} = $window;
+	$self->set_title('Scrabble');
+	$self->set_default_size(500, 500);
+	$self->signal_connect(destroy => sub { Gtk2->main_quit(); });
 	
 	my $vbox = Gtk2::VBox->new(0, 6);
-	$window->add($vbox);
+	$self->add($vbox);
 	$self->{vbox} = $vbox;
 
 	$self->draw_menu_bar();
 	$self->draw_canvas();
 
-	$window->show_all();
-	Gtk2->main();
+	$self->show_all();
+	
+	return $self;
 }
 
 sub draw_menu_bar {
