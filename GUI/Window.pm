@@ -9,6 +9,7 @@ use Gnome2::Canvas;
 use base qw(Gtk2::Window);
 
 use Game;
+use GUI::Canvas;
 
 use Data::Dumper;
 
@@ -29,7 +30,9 @@ sub new {
 	$self->{vbox} = $vbox;
 
 	$self->draw_menu_bar();
-	$self->draw_canvas();
+	
+	$self->{canvas} = GUI::Canvas->new();
+	$self->{vbox}->pack_start($self->{canvas}, 1, 1, 0);
 
 	$self->show_all();
 	
@@ -70,40 +73,11 @@ sub draw_canvas {
 	
 	my $canvas = Gnome2::Canvas->new();
 	$self->{canvas} = $canvas;
-	$canvas->set_center_scroll_region(0);
 	
-	my $white = Gtk2::Gdk::Color->new (0xFFFF,0xFFFF,0xFFFF);
-	$canvas->modify_bg('normal',$white);
-	my $size = $canvas->size_request();
-	warn $size->width() . " " . $size->height();
 	
-	my $root = $canvas->root();
-	Gnome2::Canvas::Item->new(
-		$root,
-		'Gnome2::Canvas::Text',
-		x => 20,
-		y => 15,
-		fill_color => 'black',
-		font => 'Sans 14',
-		anchor => 'GTK_ANCHOR_NW',
-		text => 'Hello world!'
-	);
-	my $box = Gnome2::Canvas::Item->new($root, 'Gnome2::Canvas::Rect',
-		x1 => 10, y1 => 10,
-		x2 => 150, y2 => 135,
-		fill_color => 'red',
-		outline_color => 'black',
-	);
+
 	
-	$box->lower_to_bottom();
-	$root->signal_connect(event => sub {
-		my ($item, $event) = @_;
-		warn "event: " . Dumper($event);
-		my $req = $canvas->allocation();
-		warn $req->width() . " " . $req->height();
-	});
 	
-	$self->{vbox}->pack_start($canvas, 1, 1, 0);
 }
 
 1;
