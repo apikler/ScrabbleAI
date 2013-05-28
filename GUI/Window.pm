@@ -31,8 +31,14 @@ sub new {
 
 	$self->draw_menu_bar();
 	
-	$self->{canvas} = GUI::Canvas->new();
+	$self->{canvas} = GUI::Canvas->new($self, $game);
 	$self->{vbox}->pack_start($self->{canvas}, 1, 1, 0);
+
+	#my $a = 0;
+	#$self->signal_connect(expose_event => sub {
+		#warn "window event! $a";
+		#$a++;
+	#});
 
 	$self->show_all();
 	
@@ -66,18 +72,6 @@ sub draw_menu_bar {
 	$menubar->append($helpmenu_item);
 	
 	$self->{vbox}->pack_start($menubar, 0, 0, 0);
-}
-
-sub draw_canvas {
-	my ($self) = @_;
-	
-	my $canvas = Gnome2::Canvas->new();
-	$self->{canvas} = $canvas;
-	
-	
-
-	
-	
 }
 
 1;

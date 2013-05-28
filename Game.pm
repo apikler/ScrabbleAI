@@ -26,4 +26,9 @@ sub new {
 	return $self;
 }
 
+sub get_board {
+	my $self = shift;
+	return $self->{board};
+}
+
 1;
