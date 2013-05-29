@@ -7,6 +7,8 @@ use Gtk2 '-init';
 
 use base qw(Gnome2::Canvas);
 
+use GUI::Board;
+
 use Data::Dumper;
 
 sub new {
@@ -64,33 +66,35 @@ sub draw {
 	# Center the board and figure out its dimensions
 	my $hspace = $w - 2*$sidemargin;
 	my $vspace = $h - 2*$margin;
-	my ($x1, $y1, $side);
+	my ($x, $y, $side);
 	if ($hspace >= $vspace) {
 		$side = $vspace;
-		$y1 = $margin;
-		$x1 = $sidemargin + ($hspace - $side)/2;
+		$y = $margin;
+		$x = $sidemargin + ($hspace - $side)/2;
 	}
 	else {
 		$side = $hspace;
-		$x1 = $sidemargin;
-		$y1 = $margin + ($vspace - $side)/2;
+		$x = $sidemargin;
+		$y = $margin + ($vspace - $side)/2;
 	}
 	my %dimensions = (
-		x1 => $x1, y1 => $y1,
-		x2 => $x1 + $side, y2 => $y1 + $side,
+		x => $x, y => $y,
 	);
 	
 	if ($self->{board}) {
 		$self->{board}->set(%dimensions);
 	}
 	else {
-		my $board = Gnome2::Canvas::Item->new($self->{root}, 'Gnome2::Canvas::Rect',
+		my $board = GUI::Board->new(
+			$self->{game}->get_board(), 
+			$self->{root},
+			'Gnome2::Canvas::Group',
 			%dimensions,
-			fill_color => 'green',
-			outline_color => 'black',
 		);
 		$self->{board} = $board;
 	}
+	
+	$self->{board}->draw($side);
 	
 	# The expose_event from the drawing we just did shouldn't call this function again, or 
 	# we'll get an infinite loop.
