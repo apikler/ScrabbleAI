@@ -9,33 +9,15 @@ use base qw(Gnome2::Canvas::Item);
 
 use GUI::Utils;
 
-use Data::Dumper;
+sub draw {
+	my ($self, $x, $y, $side) = @_;
 
-my %colors = (
-	'3W' => GUI::Utils::get_gdk_color(210, 70, 50),
-	'2W' => GUI::Utils::get_gdk_color(220, 150, 150),
-	'3L' => GUI::Utils::get_gdk_color(50, 160, 205),
-	'2L' => GUI::Utils::get_gdk_color(150, 200, 215),
-	''  =>  GUI::Utils::get_gdk_color(195, 190, 175),
-);
-
-sub new {
-	my ($class, $space, @args) = @_;
-	
-	my $self = $class->SUPER::new(@args);
-	bless($self, $class);
-	
-	$self->{space} = $space;
-	
-	return $self;
-}
-
-sub fill_color {
-	my ($self) = @_;
-	
 	$self->set(
-		fill_color_gdk => $colors{$self->{space}->get_bonus()},
-	)
+		x1 => $x, y1 => $y,
+		x2 => $x + $side, y2 => $y + $side,
+	);
+
+	$self->show();
 }
 
 1;

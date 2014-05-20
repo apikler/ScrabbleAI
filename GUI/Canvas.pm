@@ -8,6 +8,7 @@ use Gtk2 '-init';
 use base qw(Gnome2::Canvas);
 
 use GUI::Board;
+use GUI::Rack;
 
 use Data::Dumper;
 
@@ -71,8 +72,11 @@ sub draw {
 	# Space between various elements, in pixels
 	my $space = 10;
 
+	# Padding on some elements, like the rack
+	my $padding = 5;
+
 	# Tile side length vertically
-	my $side_vert = ($h - (2*$margin + $space)) / 16;	# There has to be room for 16 tiles vertically (board + rack)
+	my $side_vert = ($h - (2*$margin + 2*$padding + $space)) / 16;	# There has to be room for 16 tiles vertically (board + rack)
 
 	# Tile side length horizontally
 	my $side_horiz = ($w - 2*$margin) / 15;	# There has to be room for 15 tiles horizontally (just the board)
@@ -84,7 +88,7 @@ sub draw {
 	# The dimensions of the play area. The rest of the area outside of this is just whitespace, depending
 	# on the dimensions of the window.
 	my $area_w = 15*$side + 2*$margin;
-	my $area_h = 16*$side + 2*$margin + $space;
+	my $area_h = 16*$side + 2*$margin + 2*$padding + $space;
 
 	# Now we want to figure out $x and $y, the coordinates of the upper left corner of the board, such that
 	# the board is centered.
@@ -122,6 +126,11 @@ sub draw {
 
 	# Draw the player's visible rack
 	my $rack = $self->{game}->get_player()->get_rack();
+	unless ($self->{rack}) {
+		$self->{rack} = GUI::Rack->new($self->{root}, $rack);
+	}
+
+	$self->{rack}->draw($x, $y + 15*$side + $space, $side, $padding);
 
 	$self->{prevent_expose_event} = 1;
 }
