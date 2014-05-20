@@ -40,9 +40,7 @@ sub new {
 }
 
 sub draw {
-	my ($self, $sidelength) = @_;
-	
-	my $side = $sidelength / 15;
+	my ($self, $side) = @_;
 	
 	$self->{board}->foreach_space(sub {
 		my ($space, $i, $j) = @_;

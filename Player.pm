@@ -36,4 +36,11 @@ sub draw_hand {
 	}
 }
 
+sub get_rack {
+	my ($self) = @_;
+
+	return $self->{rack};
+}
+
+
 1;

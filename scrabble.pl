@@ -7,6 +7,7 @@ use Game;
 use GUI::Window;
 
 my $game = Game->new();
+$game->start();
 
 my $window = GUI::Window->new($game);
 

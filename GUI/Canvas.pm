@@ -39,12 +39,13 @@ sub new {
 		#text => 'Hello world!'
 	#);
 	
+	# Event that handles drawing the board whenever the canvas is resized
 	$self->signal_connect(expose_event => sub {
 		if ($self->{prevent_expose_event}) {
 			$self->{prevent_expose_event} = 0;
 			return 0;
 		}
-		
+
 		$self->draw();
 		return 0;
 	});
@@ -52,54 +53,77 @@ sub new {
 	return $self;
 }
 
-sub draw {
-	my $self = shift;
-	
+sub get_dimensions {
+	my ($self) = @_;
+
 	my $allocation = $self->allocation();
-	my ($w, $h) = ($allocation->width(), $allocation->height());
-	
-	# Margin to leave on top/bottom, in pixels:
-	my $margin = 30;
-	# Margin to leave on the sides:
-	my $sidemargin = 30;
-	
-	# Center the board and figure out its dimensions
-	my $hspace = $w - 2*$sidemargin;
-	my $vspace = $h - 2*$margin;
-	my ($x, $y, $side);
-	if ($hspace >= $vspace) {
-		$side = $vspace;
+	return ($allocation->width(), $allocation->height());
+}
+
+sub draw {
+	my ($self) = @_;
+
+	my ($w, $h) = $self->get_dimensions();
+
+	# Margin to leave at the sides of the canvas, in pixels
+	my $margin = 10;
+
+	# Space between various elements, in pixels
+	my $space = 10;
+
+	# Tile side length vertically
+	my $side_vert = ($h - (2*$margin + $space)) / 16;	# There has to be room for 16 tiles vertically (board + rack)
+
+	# Tile side length horizontally
+	my $side_horiz = ($w - 2*$margin) / 15;	# There has to be room for 15 tiles horizontally (just the board)
+
+	# We want the side length to be whichever of the above measurements is less, so that
+	# the board doesn't spill off screen in the other dimension.
+	my $side = $side_horiz <= $side_vert ? $side_horiz : $side_vert;
+
+	# The dimensions of the play area. The rest of the area outside of this is just whitespace, depending
+	# on the dimensions of the window.
+	my $area_w = 15*$side + 2*$margin;
+	my $area_h = 16*$side + 2*$margin + $space;
+
+	# Now we want to figure out $x and $y, the coordinates of the upper left corner of the board, such that
+	# the board is centered.
+	my ($x, $y);
+	if ($side_horiz >= $side_vert) {
+		# The window is sized such that there is more whitespace horizontally.
 		$y = $margin;
-		$x = $sidemargin + ($hspace - $side)/2;
+		$x = ($w - $area_w) / 2 + $margin;
 	}
 	else {
-		$side = $hspace;
-		$x = $sidemargin;
-		$y = $margin + ($vspace - $side)/2;
+		# There is more whitespace vertically
+		$x = $margin;
+		$y = ($h - $area_h) / 2 + $margin;
 	}
-	my %dimensions = (
-		x => $x, y => $y,
+
+	my %coords = (
+		x => $x,
+		y => $y,
 	);
-	
+
 	if ($self->{board}) {
-		$self->{board}->set(%dimensions);
+		$self->{board}->set(%coords);
 	}
 	else {
 		my $board = GUI::Board->new(
-			$self->{game}->get_board(), 
+			$self->{game}->get_board(),
 			$self->{root},
 			'Gnome2::Canvas::Group',
-			%dimensions,
+			%coords,
 		);
 		$self->{board} = $board;
 	}
-	
+
 	$self->{board}->draw($side);
-	
-	# The expose_event from the drawing we just did shouldn't call this function again, or 
-	# we'll get an infinite loop.
+
+	# Draw the player's visible rack
+	my $rack = $self->{game}->get_player()->get_rack();
+
 	$self->{prevent_expose_event} = 1;
 }
-
 
 1;
