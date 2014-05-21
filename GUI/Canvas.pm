@@ -20,6 +20,8 @@ sub new {
 	
 	$self->{game} = $game;
 	$self->{window} = $window;
+	$self->{side} = 0;
+	$self->{dragging} = undef;
 	
 	$self->set_center_scroll_region(0);
 	
@@ -28,17 +30,6 @@ sub new {
 	
 	my $root = $self->root();
 	$self->{root} = $root;
-	
-	#Gnome2::Canvas::Item->new(
-		#$root,
-		#'Gnome2::Canvas::Text',
-		#x => 20,
-		#y => 15,
-		#fill_color => 'black',
-		#font => 'Sans 14',
-		#anchor => 'GTK_ANCHOR_NW',
-		#text => 'Hello world!'
-	#);
 	
 	# Event that handles drawing the board whenever the canvas is resized
 	$self->signal_connect(expose_event => sub {
@@ -50,7 +41,53 @@ sub new {
 		$self->draw();
 		return 0;
 	});
-	
+
+	$self->signal_connect(button_press_event => sub {
+		my ($widget, $event, $data) = @_;
+
+		my ($x, $y) = $event->get_coords();
+		my $item = $self->get_item_at($x, $y);
+		return 1 unless $item;
+
+		my $group = $self->get_item_at($x, $y)->parent();
+		if ($group->isa('GUI::Tile')) {
+			print "parent pressed: " . Dumper($group);
+			my $tile = $group;
+			$tile->reparent($self->root);
+			$tile->set(x => $x - $self->{side}/2, y => $y - $self->{side}/2);
+			$tile->draw($self->{side});
+			$self->{dragging} = $tile;
+		}
+
+		return 1;
+	});
+
+	$self->signal_connect(motion_notify_event => sub {
+		my ($widget, $event, $data) = @_;
+
+		my ($x, $y) = $event->get_coords();
+		my $tile = $self->{dragging};
+		if ($tile) {
+			my $item = $self->get_item_at($x, $y);
+			if ($item) {
+				my $group = $self->get_item_at($x, $y)->parent();
+				print "group: " . Dumper($group);
+			}
+
+			$tile->set(x => $x - $self->{side}/2, y => $y - $self->{side}/2);
+			$tile->draw($self->{side});
+		}
+
+		return 1;
+	});
+
+	$self->signal_connect(button_release_event => sub {
+		my ($widget, $event, $data) = @_;
+
+		$self->{dragging} = undef;
+		return 1;
+	});
+
 	return $self;
 }
 
@@ -84,6 +121,7 @@ sub draw {
 	# We want the side length to be whichever of the above measurements is less, so that
 	# the board doesn't spill off screen in the other dimension.
 	my $side = $side_horiz <= $side_vert ? $side_horiz : $side_vert;
+	$self->{side} = $side;
 
 	# The dimensions of the play area. The rest of the area outside of this is just whitespace, depending
 	# on the dimensions of the window.
