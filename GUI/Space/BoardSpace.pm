@@ -7,6 +7,8 @@ use Gtk2 '-init';
 
 use base qw(GUI::Space);
 
+use Gnome2::Canvas;
+
 use GUI::Utils;
 
 my %colors = (
@@ -20,22 +22,32 @@ my %colors = (
 sub new {
 	my ($class, $root, $space) = @_;
 
-	my $self = $class->SUPER::new(
-		$root,
+	my $self = $class->SUPER::new($root, 'Gnome2::Canvas::Group');
+	bless($self, $class);
+
+	$self->{rect} = Gnome2::Canvas::Item->new(
+		$self,
 		'Gnome2::Canvas::Rect',
-		x1 => 0, y1 => 0,
-		x2 => 0, y2 => 0,
 		outline_color => 'black',
 		width_pixels => 2,
 		fill_color_gdk => $colors{$space->get_bonus()}
 	);
-	bless($self, $class);
 
 	$self->{space} = $space;
 
-	$self->hide();
-
 	return $self;
+}
+
+sub draw {
+	my ($self, $x, $y, $side) = @_;
+
+	$self->{rect}->set(
+		x1 => 0, y1 => 0,
+		x2 => $side, y2 => $side,
+	);
+	$self->{rect}->show();
+
+	$self->SUPER::draw($x, $y, $side);
 }
 
 1;

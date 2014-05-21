@@ -5,24 +5,35 @@ use warnings;
 
 use Gtk2 '-init';
 
-use base qw(Gnome2::Canvas::Item);
+use base qw(Gnome2::Canvas::Group);
+
+use Gnome2::Canvas;
 
 use GUI::Utils;
+use GUI::Space::RackSpace;
 
 use Data::Dumper;
 
 sub new {
 	my ($class, $root, $rack, $coords) = @_;
 
-	my $self = $class->SUPER::new(
-		$root,
+	my $self = $class->SUPER::new($root, 'Gnome2::Canvas::Group');
+	bless($self, $class);
+
+	$self->{rect} = Gnome2::Canvas::Item->new(
+		$self,
 		'Gnome2::Canvas::Rect',
 		outline_color => 'black',
 		width_pixels => 2,
 		fill_color_gdk => GUI::Utils::get_gdk_color(0, 150, 0),
 	);
-	bless($self, $class);
 
+	my @spaces;
+	foreach my $i (0..7) {
+		push(@spaces, GUI::Space::RackSpace->new($self, $rack));
+	}
+
+	$self->{spaces} = \@spaces;
 	$self->{rack} = $rack;
 
 	return $self;
@@ -41,12 +52,16 @@ sub draw {
 	my $height = $side + 2*$padding;
 
 	my $x1 = $x + ($board_side - $width)/2;
-	my @coords = (
-		x1 => $x1, y1 => $y,
-		x2 => $x1 + $width, y2 => $y + $height,
-	);
-	$self->set(@coords);
 
+	$self->set(x => $x1, y=>$y);
+	$self->{rect}->set(x1 => 0, y1 => 0, x2 => $width, y2 => $height);
+
+	# Re-position the 8 spaces within the rack
+	foreach my $i (0..$#{$self->{spaces}}) {
+		$self->{spaces}[$i]->draw($padding + $i*$side, $padding, $side);
+	}
+
+	$self->{rect}->show();
 	$self->show();
 }
 
