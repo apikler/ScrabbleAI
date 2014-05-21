@@ -29,8 +29,14 @@ sub new {
 	);
 
 	my @spaces;
+	my $tiles = $rack->get_tiles();
 	foreach my $i (0..7) {
-		push(@spaces, GUI::Space::RackSpace->new($self, $rack));
+		my $gui_space = GUI::Space::RackSpace->new($self, $rack);
+		push(@spaces, $gui_space);
+
+		if ($i < @$tiles) {
+			$gui_space->create_tile($tiles->[$i]);
+		}
 	}
 
 	$self->{spaces} = \@spaces;

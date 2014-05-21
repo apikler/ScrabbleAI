@@ -21,6 +21,13 @@ sub add_tile {
 	push(@{$self->{tiles}}, $tile);
 }
 
+# Returns an arrayref of the Tiles in this rack.
+sub get_tiles {
+	my ($self) = @_;
+
+	return $self->{tiles};
+}
+
 # Sets the contents of the rack to the tiles in $string.
 sub set {
 	my ($self, $string) = @_;
