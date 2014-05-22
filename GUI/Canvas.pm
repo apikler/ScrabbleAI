@@ -90,6 +90,7 @@ sub _handle_release {
 
 	if ($canvas->{dragging}) {
 		my $tile = $canvas->{dragging}{tile};
+		my $source = $canvas->{dragging}{source};
 
 		# A bit hacky; temporarily hide the tile being dragged so we can get what's underneath.
 		$tile->hide();
@@ -100,13 +101,20 @@ sub _handle_release {
 		if ($item) {
 			my $group = $canvas->get_item_at($x, $y)->parent();
 			if ($group->isa('GUI::Space')) {
-				$tile->reparent($group);
+				my $space = $group;
+				$tile->reparent($space);
+				$source->remove_tile();
+				$space->set_tile($tile);
+
+				print "Board state: \n";
+				$canvas->{game}{board}->print_spaces(); print "\n";
+
 				$drop_success = 1;
 			}
 		}
 
 		unless ($drop_success) {
-			$tile->reparent($canvas->{dragging}{source});
+			$tile->reparent($source);
 		}
 
 		$tile->set(x => 0, y => 0);

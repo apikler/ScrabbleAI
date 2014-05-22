@@ -38,6 +38,24 @@ sub new {
 	return $self;
 }
 
+sub set_tile {
+	my ($self, $gui_tile) = @_;
+
+	if (!$self->{gui_tile} && !$self->{space}->get_tile()) {
+		$self->{gui_tile} = $gui_tile;
+		$self->{space}->set_tile($gui_tile->get_tile());
+	}
+}
+
+# If this space has a tile, that tile is removed.
+sub remove_tile {
+	my ($self) = @_;
+
+	$self->SUPER::remove_tile();
+
+	$self->{space}->remove_tile();
+}
+
 sub draw {
 	my ($self, $x, $y, $side) = @_;
 

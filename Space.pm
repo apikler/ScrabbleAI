@@ -26,6 +26,12 @@ sub set_tile {
 	$self->{tile} = $tile;
 }
 
+sub remove_tile {
+	my ($self) = @_;
+
+	$self->set_tile(undef);
+}
+
 sub get_bonus {
 	my ($self) = @_;
 	

@@ -38,6 +38,13 @@ sub set_tile {
 	}
 }
 
+# If this space has a tile, that tile is removed.
+sub remove_tile {
+	my ($self) = @_;
+
+	$self->{gui_tile} = undef;
+}
+
 # Creates a new GUI::Tile to be drawn inside this space based on the given Tile.
 # Does nothing if this space already has a tile.
 sub create_tile {

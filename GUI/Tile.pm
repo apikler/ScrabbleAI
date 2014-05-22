@@ -31,6 +31,12 @@ sub new {
 	return $self;
 }
 
+sub get_tile {
+	my ($self) = @_;
+
+	return $self->{tile};
+}
+
 sub refresh_text {
 	my ($self) = @_;
 
