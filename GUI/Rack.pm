@@ -25,7 +25,7 @@ sub new {
 		'Gnome2::Canvas::Rect',
 		outline_color => 'black',
 		width_pixels => 2,
-		fill_color_gdk => GUI::Utils::get_gdk_color(0, 150, 0),
+		fill_color_gdk => GUI::Utils::rack_color(),
 	);
 
 	my @spaces;

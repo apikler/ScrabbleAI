@@ -14,4 +14,8 @@ sub get_gdk_color {
 	return Gtk2::Gdk::Color->new($r, $g, $b);
 }
 
+sub rack_color {
+	return get_gdk_color(0, 150, 0);
+}
+
 1;

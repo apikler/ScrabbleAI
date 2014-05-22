@@ -30,7 +30,7 @@ sub new {
 		'Gnome2::Canvas::Rect',
 		outline_color => 'black',
 		width_pixels => 2,
-		fill_color_gdk => $colors{$space->get_bonus()}
+		fill_color_gdk => $colors{$space->get_bonus()},
 	);
 
 	$self->{space} = $space;
@@ -40,12 +40,6 @@ sub new {
 
 sub draw {
 	my ($self, $x, $y, $side) = @_;
-
-	$self->{rect}->set(
-		x1 => 0, y1 => 0,
-		x2 => $side, y2 => $side,
-	);
-	$self->{rect}->show();
 
 	$self->SUPER::draw($x, $y, $side);
 }

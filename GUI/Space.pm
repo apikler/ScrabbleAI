@@ -15,6 +15,12 @@ sub draw {
 
 	$self->set(x => $x, y => $y);
 
+	$self->{rect}->set(
+		x1 => 0, y1 => 0,
+		x2 => $side, y2 => $side,
+	);
+	$self->{rect}->show();
+
 	if ($self->{gui_tile}) {
 		$self->{gui_tile}->draw($side);
 	}

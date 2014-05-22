@@ -34,8 +34,8 @@ sub new {
 sub refresh_text {
 	my ($self) = @_;
 
-	my $letter = uc($self->{tile}->get());
-	my $value = $self->{tile}->get_value();
+	my $letter = $self->{tile}->get() eq '*' ? '' : uc($self->{tile}->get());
+	my $value = $letter eq '' ? '' : $self->{tile}->get_value();
 
 	if ($self->{letter}) {
 		$self->{letter}->destroy();

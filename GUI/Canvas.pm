@@ -42,53 +42,80 @@ sub new {
 		return 0;
 	});
 
-	$self->signal_connect(button_press_event => sub {
-		my ($widget, $event, $data) = @_;
-
-		my ($x, $y) = $event->get_coords();
-		my $item = $self->get_item_at($x, $y);
-		return 1 unless $item;
-
-		my $group = $self->get_item_at($x, $y)->parent();
-		if ($group->isa('GUI::Tile')) {
-			print "parent pressed: " . Dumper($group);
-			my $tile = $group;
-			$tile->reparent($self->root);
-			$tile->set(x => $x - $self->{side}/2, y => $y - $self->{side}/2);
-			$tile->draw($self->{side});
-			$self->{dragging} = $tile;
-		}
-
-		return 1;
-	});
-
-	$self->signal_connect(motion_notify_event => sub {
-		my ($widget, $event, $data) = @_;
-
-		my ($x, $y) = $event->get_coords();
-		my $tile = $self->{dragging};
-		if ($tile) {
-			my $item = $self->get_item_at($x, $y);
-			if ($item) {
-				my $group = $self->get_item_at($x, $y)->parent();
-				print "group: " . Dumper($group);
-			}
-
-			$tile->set(x => $x - $self->{side}/2, y => $y - $self->{side}/2);
-			$tile->draw($self->{side});
-		}
-
-		return 1;
-	});
-
-	$self->signal_connect(button_release_event => sub {
-		my ($widget, $event, $data) = @_;
-
-		$self->{dragging} = undef;
-		return 1;
-	});
+	$self->signal_connect(button_press_event => \&_handle_press, $self);
+	$self->signal_connect(motion_notify_event => \&_handle_drag, $self);
+	$self->signal_connect(button_release_event => \&_handle_release, $self);
 
 	return $self;
+}
+
+sub _handle_press {
+	my ($widget, $event, $canvas) = @_;
+
+	my ($x, $y) = $event->get_coords();
+	my $item = $canvas->get_item_at($x, $y);
+	return 1 unless $item;
+
+	my $group = $canvas->get_item_at($x, $y)->parent();
+	if ($group->isa('GUI::Tile')) {
+		my $tile = $group;
+		$canvas->{dragging} = {
+			tile => $tile,
+			source => $tile->parent(),
+		};
+
+		$tile->reparent($canvas->root);
+		$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
+		$tile->draw($canvas->{side});
+	}
+
+	return 1;
+}
+
+sub _handle_drag {
+	my ($widget, $event, $canvas) = @_;
+
+	my ($x, $y) = $event->get_coords();
+	if ($canvas->{dragging}) {
+		my $tile = $canvas->{dragging}{tile};
+		$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
+		$tile->draw($canvas->{side});
+	}
+
+	return 1;
+}
+
+sub _handle_release {
+	my ($widget, $event, $canvas) = @_;
+
+	if ($canvas->{dragging}) {
+		my $tile = $canvas->{dragging}{tile};
+
+		# A bit hacky; temporarily hide the tile being dragged so we can get what's underneath.
+		$tile->hide();
+
+		my ($x, $y) = $event->get_coords();
+		my $item = $canvas->get_item_at($x, $y);
+		my $drop_success = 0;
+		if ($item) {
+			my $group = $canvas->get_item_at($x, $y)->parent();
+			if ($group->isa('GUI::Space')) {
+				$tile->reparent($group);
+				$drop_success = 1;
+			}
+		}
+
+		unless ($drop_success) {
+			$tile->reparent($canvas->{dragging}{source});
+		}
+
+		$tile->set(x => 0, y => 0);
+
+		$canvas->{dragging} = undef;
+		$canvas->draw();
+	}
+
+	return 1;
 }
 
 sub get_dimensions {
