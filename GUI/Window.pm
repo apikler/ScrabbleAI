@@ -22,23 +22,23 @@ sub new {
 	$self->{game} = $game;
 	
 	$self->set_title('Scrabble');
-	$self->set_default_size(500, 500);
+	$self->set_default_size(700, 700);
 	$self->signal_connect(destroy => sub { Gtk2->main_quit(); });
 	
-	my $vbox = Gtk2::VBox->new(0, 6);
-	$self->add($vbox);
-	$self->{vbox} = $vbox;
+	my $vbox_main = Gtk2::VBox->new(0, 6);
+	my $vbox_widgets = Gtk2::VBox->new(0, 6);
+	my $hbox = Gtk2::HBox->new(0, 6);
 
-	$self->draw_menu_bar();
-	
+	$self->add($vbox_main);
+	$self->draw_menu_bar($vbox_main);
+
+	$vbox_main->pack_start($hbox, 1, 1, 0);
 	$self->{canvas} = GUI::Canvas->new($self, $game);
-	$self->{vbox}->pack_start($self->{canvas}, 1, 1, 0);
+	$hbox->pack_start($self->{canvas}, 1, 1, 0);
 
-	#my $a = 0;
-	#$self->signal_connect(expose_event => sub {
-		#warn "window event! $a";
-		#$a++;
-	#});
+	$hbox->pack_start($vbox_widgets, 0, 0, 0);
+	my $turn_button = Gtk2::Button->new('Make Move');
+	$vbox_widgets->pack_start($turn_button, 0, 0, 0);
 
 	$self->show_all();
 	
@@ -46,7 +46,7 @@ sub new {
 }
 
 sub draw_menu_bar {
-	my ($self) = @_;
+	my ($self, $box) = @_;
 	
 	my $menubar = Gtk2::MenuBar->new();
 	$self->{menubar} = $menubar;
@@ -71,7 +71,7 @@ sub draw_menu_bar {
 	$helpmenu_item->set_submenu($helpmenu);
 	$menubar->append($helpmenu_item);
 	
-	$self->{vbox}->pack_start($menubar, 0, 0, 0);
+	$box->pack_start($menubar, 0, 0, 0);
 }
 
 1;

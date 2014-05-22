@@ -57,16 +57,18 @@ sub _handle_press {
 	return 1 unless $item;
 
 	my $group = $canvas->get_item_at($x, $y)->parent();
-	if ($group->isa('GUI::Tile')) {
+	if ($group->isa('GUI::Tile') && !$canvas->{dragging}) {
 		my $tile = $group;
-		$canvas->{dragging} = {
-			tile => $tile,
-			source => $tile->parent(),
-		};
+		my $parent = $tile->parent();
 
 		$tile->reparent($canvas->root);
 		$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
 		$tile->draw($canvas->{side});
+
+		$canvas->{dragging} = {
+			tile => $tile,
+			source => $parent,
+		};
 	}
 
 	return 1;
@@ -120,6 +122,7 @@ sub _handle_release {
 		$tile->set(x => 0, y => 0);
 
 		$canvas->{dragging} = undef;
+		$tile->show();
 		$canvas->draw();
 	}
 
