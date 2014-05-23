@@ -107,7 +107,7 @@ sub reset {
 		for my $j (0..14) {
 			my $space = "$i,$j";
 			my $bonus = $bonuses_by_space{$space};
-			$spaces{$space} = $bonus ? Space->new($bonus) : Space->new('');
+			$spaces{$space} = $bonus ? Space->new($i, $j, $bonus) : Space->new($i, $j, '');
 		}
 	}
 

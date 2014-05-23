@@ -39,6 +39,7 @@ sub new {
 	$hbox->pack_start($vbox_widgets, 0, 0, 0);
 	my $turn_button = Gtk2::Button->new('Make Move');
 	$vbox_widgets->pack_start($turn_button, 0, 0, 0);
+	$turn_button->signal_connect(clicked => \&GUI::Canvas::make_move, $self->{canvas});
 
 	$self->show_all();
 	

@@ -7,6 +7,7 @@ use Gtk2 '-init';
 
 use base qw(Gnome2::Canvas);
 
+use Move;
 use GUI::Board;
 use GUI::Rack;
 
@@ -46,6 +47,8 @@ sub new {
 	$self->signal_connect(motion_notify_event => \&_handle_drag, $self);
 	$self->signal_connect(button_release_event => \&_handle_release, $self);
 
+	$self->reset_turn();
+
 	return $self;
 }
 
@@ -59,7 +62,7 @@ sub _handle_press {
 	my $group = $canvas->get_item_at($x, $y)->parent();
 	if ($group->isa('GUI::Tile') && !$canvas->{dragging}) {
 		my $tile = $group;
-		my $parent = $tile->parent();
+		my $space = $tile->parent();
 
 		$tile->reparent($canvas->root);
 		$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
@@ -67,7 +70,7 @@ sub _handle_press {
 
 		$canvas->{dragging} = {
 			tile => $tile,
-			source => $parent,
+			source => $space,
 		};
 	}
 
@@ -108,8 +111,24 @@ sub _handle_release {
 				$source->remove_tile();
 				$space->set_tile($tile);
 
+				# Same reasoning as in _handle_press.
+				my @coords = $space->get_coords();
+				if (@coords) {
+					$canvas->{move}->add(@coords, $tile->get_tile());
+				}
+
+				# Only spaces on the board will have coordinates. If we're removing a tile from
+				# a space on the board, we want to also remove that space from the move that we're
+				# creating. Similarly, if we've moved the tile into a board space, we want to add
+				# that to the move.
+				my @new_coords = $space->get_coords();
+				my @source_coords = $source->get_coords();
+				$canvas->{move}->remove(@source_coords) if @source_coords;
+				$canvas->{move}->add(@new_coords, $tile->get_tile()) if @new_coords;
+
 				print "Board state: \n";
 				$canvas->{game}{board}->print_spaces(); print "\n";
+				print "Move: " . $canvas->{move}->str() . "\n";
 
 				$drop_success = 1;
 			}
@@ -129,11 +148,23 @@ sub _handle_release {
 	return 1;
 }
 
+sub reset_turn {
+	my ($self) = @_;
+
+	$self->{move} = Move->new($self->{game}->get_board());
+}
+
 sub get_dimensions {
 	my ($self) = @_;
 
 	my $allocation = $self->allocation();
 	return ($allocation->width(), $allocation->height());
+}
+
+sub make_move {
+	my ($widget, $event, $canvas) = @_;
+
+	warn "making move!";
 }
 
 sub draw {

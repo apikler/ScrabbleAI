@@ -22,6 +22,20 @@ sub new {
 	return $self;
 }
 
+# If this move has a tile to be placed at coordinates (i, j), remove that
+# from this move.
+sub remove {
+	my ($self, $i, $j) = @_;
+
+	delete $self->{tiles}{"$i,$j"};
+}
+
+sub add {
+	my ($self, $i, $j, $tile) = @_;
+
+	$self->{tiles}{"$i,$j"} = $tile;
+}
+
 sub set_word {
 	my ($self, $word, $i, $j, $down) = @_;
 	
@@ -132,5 +146,16 @@ sub transpose {
 	$self->{tiles} = \%newtiles;
 }
 
+sub str {
+	my ($self) = @_;
+
+	my @strings;
+	while (my ($location, $tile) = each %{$self->{tiles}}) {
+		my $letter = $tile->get();
+		push(@strings, "($location) => '$letter'");
+	}
+
+	return join(' ; ', @strings);
+}
 
 1;

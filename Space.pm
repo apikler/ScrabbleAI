@@ -4,14 +4,22 @@ use strict;
 use warnings;
 
 sub new {
-	my ($class, $bonus) = @_;
+	my ($class, $i, $j, $bonus) = @_;
 	
 	my $self = bless({
 		bonus => $bonus,
 		tile => undef,
+		i => $i,
+		j => $j,
 	}, $class);
 	
 	return $self;
+}
+
+sub get_coords {
+	my ($self) = @_;
+
+	return ($self->{i}, $self->{j});
 }
 
 sub get_tile {

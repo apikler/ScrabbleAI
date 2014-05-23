@@ -216,7 +216,7 @@ sub get_restrictions {
 	return \%restrictions;
 }
 
-# Returns 1 if $letter is OK to place at $i, $j, give $restrictions as generated 
+# Returns 1 if $letter is OK to place at $i, $j, given $restrictions as generated
 # by get_restrictions. 
 sub passes_restrictions {
 	my ($letter, $restrictions, $i, $j) = @_;

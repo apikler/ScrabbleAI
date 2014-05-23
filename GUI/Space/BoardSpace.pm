@@ -56,6 +56,13 @@ sub remove_tile {
 	$self->{space}->remove_tile();
 }
 
+# Returns the (i, j) board coordinates of this space.
+sub get_coords {
+	my ($self) = @_;
+
+	return $self->{space}->get_coords();
+}
+
 sub draw {
 	my ($self, $x, $y, $side) = @_;
 

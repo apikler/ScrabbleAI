@@ -45,6 +45,10 @@ sub remove_tile {
 	$self->{gui_tile} = undef;
 }
 
+sub get_coords {
+	return ();
+}
+
 # Creates a new GUI::Tile to be drawn inside this space based on the given Tile.
 # Does nothing if this space already has a tile.
 sub create_tile {
