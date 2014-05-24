@@ -43,7 +43,7 @@ sub set_tile {
 
 	if (!$self->{gui_tile} && !$self->{space}->get_tile()) {
 		$self->{gui_tile} = $gui_tile;
-		$self->{space}->set_tile($gui_tile->get_tile());
+		# $self->{space}->set_tile($gui_tile->get_tile());
 	}
 }
 
@@ -53,7 +53,7 @@ sub remove_tile {
 
 	$self->SUPER::remove_tile();
 
-	$self->{space}->remove_tile();
+	# $self->{space}->remove_tile();
 }
 
 # Returns the (i, j) board coordinates of this space.

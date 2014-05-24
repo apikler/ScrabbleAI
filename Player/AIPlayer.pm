@@ -48,7 +48,7 @@ sub get_move {
 sub get_moves {
 	my ($self) = @_;
 	
-	my $anchors = $self->get_anchors();
+	my $anchors = $self->{board}->get_anchors();
 	my $restrictions = $self->get_restrictions();
 	# print "restrictions: " . Dumper($restrictions);
 	
@@ -234,32 +234,5 @@ sub passes_restrictions {
 	return 0;
 }
 
-# Returns hashref of {"$i,$j" => Space} for each space that is adjacent to at least one other tile
-# and is itself empty;
-sub get_anchors {
-	my ($self) = @_;
-	
-	my %anchors;
-	$self->{board}->foreach_space(sub {
-		my ($space, $i, $j) = @_;
-		
-		# This space can't be an anchor because it isn't empty.
-		return if $space->get_tile();
-		
-		my $neighbors = $self->{board}->adjacent_spaces($i, $j);
-		for my $neighbor (@$neighbors) {
-			if ($neighbor->get_tile()) {
-				$anchors{"$i,$j"} = $space;
-				last;
-			}
-		}
-	});
-	
-	# If at this point we have no anchors, that means there are no tiles on the board. So make
-	# the middle space on the board an anchor
-	$anchors{'7,7'} = $self->{board}->get_space(7, 7) unless keys %anchors;
-	
-	return \%anchors;
-}
 
 1;

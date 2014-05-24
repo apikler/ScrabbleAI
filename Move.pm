@@ -146,6 +146,26 @@ sub transpose {
 	$self->{tiles} = \%newtiles;
 }
 
+# Returns 1 if this Move contains at least one anchor (as returned by Board),
+# 0 otherwise.
+sub contains_anchor {
+	my ($self) = @_;
+
+	my $anchors = $self->{board}->get_anchors();
+
+	foreach my $coords (keys %{$self->{tiles}}) {
+		return 1 if defined $anchors->{$coords};
+	}
+
+	return 0;
+}
+
+sub legal {
+	my ($self) = @_;
+
+	return $self->contains_anchor();
+}
+
 sub str {
 	my ($self) = @_;
 

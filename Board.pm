@@ -276,4 +276,33 @@ sub make_move {
 		$self->get_space($i, $j)->set_tile($tile);
 	}
 }
+
+# Returns hashref of {"$i,$j" => Space} for each space that is adjacent to at least one other tile
+# and is itself empty;
+sub get_anchors {
+	my ($self) = @_;
+
+	my %anchors;
+	$self->foreach_space(sub {
+		my ($space, $i, $j) = @_;
+
+		# This space can't be an anchor because it isn't empty.
+		return if $space->get_tile();
+
+		my $neighbors = $self->adjacent_spaces($i, $j);
+		for my $neighbor (@$neighbors) {
+			if ($neighbor->get_tile()) {
+				$anchors{"$i,$j"} = $space;
+				last;
+			}
+		}
+	});
+
+	# If at this point we have no anchors, that means there are no tiles on the board. So make
+	# the middle space on the board an anchor
+	$anchors{'7,7'} = $self->get_space(7, 7) unless keys %anchors;
+
+	return \%anchors;
+}
+
 1;

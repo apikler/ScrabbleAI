@@ -126,8 +126,6 @@ sub _handle_release {
 				$canvas->{move}->remove(@source_coords) if @source_coords;
 				$canvas->{move}->add(@new_coords, $tile->get_tile()) if @new_coords;
 
-				print "Board state: \n";
-				$canvas->{game}{board}->print_spaces(); print "\n";
 				print "Move: " . $canvas->{move}->str() . "\n";
 
 				$drop_success = 1;
@@ -162,9 +160,14 @@ sub get_dimensions {
 }
 
 sub make_move {
-	my ($widget, $event, $canvas) = @_;
+	my ($self) = @_;
 
-	warn "making move!";
+	if ($self->{move}->legal()) {
+		warn "legal move!";
+	}
+	else {
+		warn "illegal move!";
+	}
 }
 
 sub draw {
