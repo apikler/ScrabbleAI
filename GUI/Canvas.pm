@@ -47,7 +47,7 @@ sub new {
 	$self->signal_connect(motion_notify_event => \&_handle_drag, $self);
 	$self->signal_connect(button_release_event => \&_handle_release, $self);
 
-	$self->reset_turn();
+	$self->next_turn();
 
 	return $self;
 }
@@ -146,10 +146,15 @@ sub _handle_release {
 	return 1;
 }
 
-sub reset_turn {
+sub next_turn {
 	my ($self) = @_;
 
+	$self->{game}->next_turn();
 	$self->{move} = Move->new($self->{game}->get_board());
+
+	if ($self->{rack}) {
+		$self->{rack}->refresh();
+	}
 }
 
 sub get_dimensions {
@@ -164,24 +169,21 @@ sub make_move {
 
 	if ($self->{move}->legal()) {
 		warn "legal move!";
-		$self->commit_spaces();
+		$self->{board}->commit_spaces();
+		$self->{rack}->commit();
+
+		$self->next_turn();
+
+		my $aimove = $self->{game}->get_ai_move();
+		warn "ai move: " . $aimove->str();
+		$self->{board}->move_to_board($aimove);
+		$self->{board}->commit_spaces();
+
+		$self->next_turn();
 	}
 	else {
 		warn "illegal move!";
 	}
-}
-
-# Adds the current move to the board.
-sub commit_spaces {
-	my ($self) = @_;
-
-	$self->{board}->foreach_space(sub {
-		my ($space, $i, $j) = @_;
-
-		$space->commit();
-	});
-
-	print "board: \n " . $self->{board}{board}->print_spaces();
 }
 
 sub draw {

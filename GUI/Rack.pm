@@ -29,20 +29,63 @@ sub new {
 	);
 
 	my @spaces;
-	my $tiles = $rack->get_tiles();
 	foreach my $i (0..7) {
 		my $gui_space = GUI::Space::RackSpace->new($self, $rack);
 		push(@spaces, $gui_space);
-
-		if ($i < @$tiles) {
-			$gui_space->create_tile($tiles->[$i]);
-		}
 	}
 
 	$self->{spaces} = \@spaces;
 	$self->{rack} = $rack;
 
+	$self->refresh();
+
 	return $self;
+}
+
+sub refresh {
+	my ($self) = @_;
+
+	my $tiles = $self->{rack}->get_tiles();
+	foreach my $tile (@$tiles) {
+		unless ($self->_tile_drawn($tile)) {
+			$self->get_first_empty_space()->create_tile($tile);
+		}
+	}
+}
+
+sub _tile_drawn {
+	my ($self, $tile) = @_;
+
+	foreach my $space (@{$self->{spaces}}) {
+		if ($space->has_tile()) {
+			return 1 if $space->get_tile()->get_tile() == $tile;
+		}
+	}
+
+	return 0;
+}
+
+sub get_first_empty_space {
+	my ($self) = @_;
+
+	foreach my $space (@{$self->{spaces}}) {
+		return $space unless $space->has_tile();
+	}
+
+	return undef;
+}
+
+sub commit {
+	my ($self) = @_;
+
+	my @tiles;
+	foreach my $space (@{$self->{spaces}}) {
+		if ($space->has_tile()) {
+			push(@tiles, $space->get_tile()->get_tile());
+		}
+	}
+
+	$self->{rack}->set_tiles(\@tiles);
 }
 
 # Draws the rack in the given location, centered below the board.

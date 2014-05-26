@@ -193,6 +193,7 @@ sub straight_line {
 
 		# We only considered horizontal moves, now we need to consider vertical moves.
 		$self->transpose();
+		$self->{board}->transpose();
 	}
 
 	return $straight;

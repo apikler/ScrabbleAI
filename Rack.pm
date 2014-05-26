@@ -28,6 +28,12 @@ sub get_tiles {
 	return $self->{tiles};
 }
 
+sub set_tiles {
+	my ($self, $tiles) = @_;
+
+	$self->{tiles} = $tiles;
+}
+
 # Sets the contents of the rack to the tiles in $string.
 sub set {
 	my ($self, $string) = @_;

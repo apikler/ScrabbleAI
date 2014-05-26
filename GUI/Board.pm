@@ -46,6 +46,34 @@ sub get_space {
 	return $self->{spaces}{"$i,$j"};
 }
 
+# Adds the current move to the board.
+sub commit_spaces {
+	my ($self) = @_;
+
+	$self->foreach_space(sub {
+		my ($space, $i, $j) = @_;
+
+		$space->commit();
+	});
+
+	print "board: \n " . $self->{board}->print_spaces();
+}
+
+# Takes a Move and creates the necessary tiles on the board.
+sub move_to_board {
+	my ($self, $move) = @_;
+
+	my $move_tiles = $move->get_tiles();
+	$self->foreach_space(sub {
+		my ($space, $i, $j) = @_;
+
+		my $move_tile = $move_tiles->{"$i,$j"};
+		if (!$space->has_tile() && $move_tile) {
+			$space->create_tile($move_tile);
+		}
+	});
+}
+
 sub draw {
 	my ($self, $side) = @_;
 	

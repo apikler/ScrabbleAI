@@ -51,6 +51,17 @@ sub has_tile {
 	return defined $self->{gui_tile};
 }
 
+sub get_tile {
+	my ($self) = @_;
+
+	if ($self->has_tile()) {
+		return $self->{gui_tile};
+	}
+	else {
+		return undef;
+	}
+}
+
 sub get_coords {
 	return ();
 }
