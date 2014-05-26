@@ -182,13 +182,13 @@ sub straight_line {
 		if (Utils::same_elements(\@coords_j)) {
 			my $j = $coords_j[0];
 
-			my $gap = 0;
+			my $problem = 0;	# There's an empty space, or one of the move spaces already has a tile.
 			my @sorted_i = sort {$a <=> $b} @coords_i;
 			foreach my $i ($sorted_i[0]..$sorted_i[$#sorted_i]) {
-				$gap = 1 unless $self->{tiles}{"$i,$j"} || $self->{board}->get_space($i, $j)->get_tile();
+				$problem = 1 unless $self->{tiles}{"$i,$j"} xor $self->{board}->get_space($i, $j)->get_tile();
 			}
 
-			$straight = 1 if $gap == 0;
+			$straight = 1 if $problem == 0;
 		}
 
 		# We only considered horizontal moves, now we need to consider vertical moves.

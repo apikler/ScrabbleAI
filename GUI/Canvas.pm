@@ -164,10 +164,24 @@ sub make_move {
 
 	if ($self->{move}->legal()) {
 		warn "legal move!";
+		$self->commit_spaces();
 	}
 	else {
 		warn "illegal move!";
 	}
+}
+
+# Adds the current move to the board.
+sub commit_spaces {
+	my ($self) = @_;
+
+	$self->{board}->foreach_space(sub {
+		my ($space, $i, $j) = @_;
+
+		$space->commit();
+	});
+
+	print "board: \n " . $self->{board}{board}->print_spaces();
 }
 
 sub draw {

@@ -45,6 +45,12 @@ sub remove_tile {
 	$self->{gui_tile} = undef;
 }
 
+sub has_tile {
+	my ($self) = @_;
+
+	return defined $self->{gui_tile};
+}
+
 sub get_coords {
 	return ();
 }

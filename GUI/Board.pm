@@ -24,22 +24,35 @@ sub new {
 	$board->foreach_space(sub {
 		my ($space, $i, $j) = @_;
 		
-		$self->{spaces}->{"$i,$j"} = GUI::Space::BoardSpace->new(
-			$self,
-			$board->get_space($i, $j),
-		);
+		$self->{spaces}{"$i,$j"} = GUI::Space::BoardSpace->new($self, $space);
 	});
 	
 	return $self;
 }
 
+sub foreach_space {
+	my ($self, $sub) = @_;
+
+	$self->{board}->foreach_space(sub {
+		my ($space, $i, $j) = @_;
+
+		&$sub($self->get_space($i, $j), $i, $j);
+	});
+}
+
+sub get_space {
+	my ($self, $i, $j) = @_;
+
+	return $self->{spaces}{"$i,$j"};
+}
+
 sub draw {
 	my ($self, $side) = @_;
 	
-	$self->{board}->foreach_space(sub {
+	$self->foreach_space(sub {
 		my ($space, $i, $j) = @_;
 		
-		$self->{spaces}->{"$i,$j"}->draw($i*$side, $j*$side, $side);
+		$space->draw($i*$side, $j*$side, $side);
 	});
 }
 

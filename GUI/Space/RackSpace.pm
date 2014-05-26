@@ -9,6 +9,8 @@ use base qw(GUI::Space);
 
 use GUI::Utils;
 
+use Data::Dumper;
+
 sub new {
 	my ($class, $root, $rack) = @_;
 

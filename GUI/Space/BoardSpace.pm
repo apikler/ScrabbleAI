@@ -43,7 +43,6 @@ sub set_tile {
 
 	if (!$self->{gui_tile} && !$self->{space}->get_tile()) {
 		$self->{gui_tile} = $gui_tile;
-		# $self->{space}->set_tile($gui_tile->get_tile());
 	}
 }
 
@@ -52,8 +51,16 @@ sub remove_tile {
 	my ($self) = @_;
 
 	$self->SUPER::remove_tile();
+}
 
-	# $self->{space}->remove_tile();
+# If there's a tile on this space, it is placed onto the Board (the
+# back-end Board, not the GUI::Board)
+sub commit {
+	my ($self) = @_;
+
+	if ($self->{gui_tile}) {
+		$self->{space}->set_tile($self->{gui_tile}->get_tile());
+	}
 }
 
 # Returns the (i, j) board coordinates of this space.
