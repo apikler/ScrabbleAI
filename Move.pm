@@ -9,6 +9,7 @@ use List::Util qw(sum);
 
 use Tile;
 use Board;
+use Utils;
 
 sub new {
 	my ($class, $board) = @_;
@@ -160,10 +161,47 @@ sub contains_anchor {
 	return 0;
 }
 
+# Returns 1 if all the tiles in this move make a straight line, possibly
+# with other tiles already on the board, 0 otherwise.
+sub straight_line {
+	my ($self) = @_;
+
+	my $numtiles = scalar(keys %{$self->{tiles}});
+	return 0 if $numtiles == 0;
+	return 1 if $numtiles == 1;
+
+	my $straight = 0;
+	foreach my $n (0..1) {
+		my @coords = keys %{$self->{tiles}};
+		my @coords_i = Utils::coord_position(\@coords, 0);
+		my @coords_j = Utils::coord_position(\@coords, 1);
+
+		# We want to set $straight to 1 if all the j-coordinates are the same
+		# and there are no empty spaces between the leftmost and rightmost
+		# tile of this move.
+		if (Utils::same_elements(\@coords_j)) {
+			my $j = $coords_j[0];
+
+			my $gap = 0;
+			my @sorted_i = sort {$a <=> $b} @coords_i;
+			foreach my $i ($sorted_i[0]..$sorted_i[$#sorted_i]) {
+				$gap = 1 unless $self->{tiles}{"$i,$j"} || $self->{board}->get_space($i, $j)->get_tile();
+			}
+
+			$straight = 1 if $gap == 0;
+		}
+
+		# We only considered horizontal moves, now we need to consider vertical moves.
+		$self->transpose();
+	}
+
+	return $straight;
+}
+
 sub legal {
 	my ($self) = @_;
 
-	return $self->contains_anchor();
+	return $self->contains_anchor() && $self->straight_line();
 }
 
 sub str {
