@@ -126,8 +126,6 @@ sub _handle_release {
 				$canvas->{move}->remove(@source_coords) if @source_coords;
 				$canvas->{move}->add(@new_coords, $tile->get_tile()) if @new_coords;
 
-				print "Move: " . $canvas->{move}->str() . "\n";
-
 				$drop_success = 1;
 			}
 		}
@@ -175,7 +173,6 @@ sub make_move {
 		$self->next_turn();
 
 		my $aimove = $self->{game}->get_ai_move();
-		warn "ai move: " . $aimove->str();
 		$self->{board}->move_to_board($aimove);
 		$self->{board}->commit_spaces();
 

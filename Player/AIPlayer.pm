@@ -24,7 +24,7 @@ sub new {
 sub get_move {
 	my ($self) = @_;
 	
-	print "Rack: " . $self->{rack}->str() . "\n";
+	warn "AI Rack: " . $self->{rack}->str() . "\n";
 	
 	$self->{moves} = [];
 	$self->get_moves();
@@ -50,7 +50,6 @@ sub get_moves {
 	
 	my $anchors = $self->{board}->get_anchors();
 	my $restrictions = $self->get_restrictions();
-	# print "restrictions: " . Dumper($restrictions);
 	
 	while (my ($location, $anchor) = each %$anchors) {
 		$location =~ /(\d+)\,(\d+)/;
@@ -63,7 +62,9 @@ sub get_moves {
 			my @prefix = map {$_->get()} @$prefix_tiles;
 			my $node = Node::get_node($root, @prefix);
 			# warn "prefix: ". Dumper(\@prefix);
-			$self->extend_right(join('', @prefix), $node, $restrictions, $i, $j);
+			if ($node) {
+				$self->extend_right(join('', @prefix), $node, $restrictions, $i, $j);
+			}
 		}
 		else {
 			# Backtrack to find the number of spaces before an anchor to the left of $i, $j
@@ -149,7 +150,7 @@ sub extend_right {
 				if ($child->is_endpoint()) {
 					my $space = $board->get_space($i+1, $j);
 					if (!defined($space) || !($space->get_tile())) {
-						$self->save_move($partial_word.$letter, $i, $j) if $child->is_endpoint();
+						$self->save_move($partial_word.$letter, $i, $j);
 					}
 				}
 				$self->extend_right($partial_word.$letter, $child, $restrictions, $i+1, $j);
@@ -164,7 +165,7 @@ sub extend_right {
 			if ($child->is_endpoint()) {
 				my $space = $board->get_space($i+1, $j);
 				if (!defined($space) || !($space->get_tile())) {
-					$self->save_move($partial_word.$letter, $i, $j) if $child->is_endpoint();
+					$self->save_move($partial_word.$letter, $i, $j);
 				}
 			}
 			$self->extend_right($partial_word.$letter, $child, $restrictions, $i+1, $j);

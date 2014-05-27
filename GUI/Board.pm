@@ -55,8 +55,6 @@ sub commit_spaces {
 
 		$space->commit();
 	});
-
-	print "board: \n " . $self->{board}->print_spaces();
 }
 
 # Takes a Move and creates the necessary tiles on the board.
