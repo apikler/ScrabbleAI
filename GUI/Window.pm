@@ -41,6 +41,12 @@ sub new {
 	$vbox_widgets->pack_start($turn_button, 0, 0, 0);
 	$turn_button->signal_connect(clicked => \&_make_move_callback, $self->{canvas});
 
+	my $statusbar = Gtk2::Statusbar->new();
+	$statusbar->set_has_resize_grip(1);
+	$vbox_main->pack_end($statusbar, 0, 1, 0);
+	$statusbar->show();
+	$self->{statusbar} = $statusbar;
+
 	$self->show_all();
 	
 	return $self;
@@ -73,6 +79,14 @@ sub draw_menu_bar {
 	$menubar->append($helpmenu_item);
 	
 	$box->pack_start($menubar, 0, 0, 0);
+}
+
+# Sets the given text as the status in the statusbar at the bottom of the window.
+sub set_status {
+	my ($self, $text) = @_;
+
+	my $contextid = $self->{statusbar}->get_context_id('game status');
+	$self->{statusbar}->push($contextid, $text);
 }
 
 sub _make_move_callback {

@@ -167,7 +167,7 @@ sub make_move {
 	my ($self) = @_;
 
 	if ($self->{move}->legal()) {
-		warn "legal move!";
+		$self->{window}->set_status("Legal move!");
 		$self->{board}->commit_spaces();
 		$self->{rack}->commit();
 
@@ -180,7 +180,7 @@ sub make_move {
 		$self->next_turn();
 	}
 	else {
-		warn "illegal move!";
+		$self->{window}->set_status("Illegal move!");
 	}
 }
 

@@ -205,6 +205,19 @@ sub legal {
 	return $self->contains_anchor() && $self->straight_line();
 }
 
+# Returns a hash that describes whether each new word created by
+# this move is legal. The hash has this form:
+# { word => legality } where legality is 0 or 1.
+# Empty if the move is not legal.
+# TODO
+sub get_word_validity {
+	my ($self) = @_;
+
+	return () unless $self->legal();
+
+
+}
+
 sub str {
 	my ($self) = @_;
 
