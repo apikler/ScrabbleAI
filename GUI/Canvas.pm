@@ -83,6 +83,7 @@ sub _handle_drag {
 	my ($x, $y) = $event->get_coords();
 	if ($canvas->{dragging}) {
 		my $tile = $canvas->{dragging}{tile};
+
 		$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
 		$tile->draw($canvas->{side});
 	}
@@ -185,6 +186,12 @@ sub make_move {
 
 sub draw {
 	my ($self) = @_;
+
+	# If the user is dragging a tile, we want to skip the redraw. Perl GTK spams lots of
+	# unnecessary redraws that slow the user interface to a crawl if we don't do this.
+	if ($self->{dragging}) {
+		return;
+	}
 
 	my ($w, $h) = $self->get_dimensions();
 
