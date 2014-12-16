@@ -171,7 +171,8 @@ sub make_move {
 	warn "words: " . Dumper($self->{move}->get_words());
 
 	if ($self->{move}->legal()) {
-		$self->{window}->set_status("Legal move! Value: " . $self->{move}->get_value());
+		$self->{window}->set_status("Legal move! Value: " . $self->{move}->evaluate());
+
 		$self->{board}->commit_spaces();
 		$self->{rack}->commit();
 

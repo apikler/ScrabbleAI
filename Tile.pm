@@ -44,6 +44,7 @@ sub new {
 		# this is the same as the type. For blanks, this is * until set_blank_letter is called.
 		letter => lc($type),
 		on_board => 0, # Flag that indicates whether this tile has been placed on the board.
+		location => '', # Coordinates of this tile
 	}, $class);
 	
 	return $self;
@@ -70,6 +71,21 @@ sub set_on_board {
 sub is_on_board {
 	my ($self) = @_;
 	return $self->{on_board};
+}
+
+sub set_location {
+	my ($self, $i, $j) = @_;
+	$self->{location} = "$i,$j";
+}
+
+sub clear_location {
+	my ($self) = @_;
+	$self->{location} = '';
+}
+
+sub get_location {
+	my ($self) = @_;
+	return $self->{location};
 }
 
 # If this tile is a blank, sets the letter. Otherwise, does nothing.

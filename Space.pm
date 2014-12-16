@@ -31,8 +31,16 @@ sub get_tile {
 sub set_tile {
 	my ($self, $tile) = @_;
 	
+	if ($tile) {
+		$tile->set_on_board(1);
+		$tile->set_location($self->{i}, $self->{j});
+	}
+	else {
+		$tile->set_on_board(0);
+		$tile->clear_location();
+	}
+
 	$self->{tile} = $tile;
-	$tile->set_on_board(1);
 }
 
 sub remove_tile {

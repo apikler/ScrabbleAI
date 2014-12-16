@@ -29,12 +29,14 @@ sub new {
 sub remove {
 	my ($self, $i, $j) = @_;
 
+	$self->{tiles}{"$i,$j"}->clear_location();
 	delete $self->{tiles}{"$i,$j"};
 }
 
 sub add {
 	my ($self, $i, $j, $tile) = @_;
 
+	$tile->set_location($i, $j);
 	$self->{tiles}{"$i,$j"} = $tile;
 }
 
@@ -46,7 +48,9 @@ sub set_word {
 	while ($self->{board}->in_bounds($i, $j) && $index < length($word)) {
 		my $tile_on_board = $self->{board}->get_space($i, $j)->get_tile();
 		unless ($tile_on_board) {
-			$self->{tiles}{"$i,$j"} = Tile->new(substr($word, $index, 1));
+			my $tile = Tile->new(substr($word, $index, 1));
+			$self->{tiles}{"$i,$j"} = $tile;
+			$tile->set_location($i, $j);
 		}
 		$i += $di;
 		$j += $dj;
@@ -63,7 +67,9 @@ sub set_word_reverse {
 	while ($self->{board}->in_bounds($i, $j) && $index >= 0) {
 		my $tile_on_board = $self->{board}->get_space($i, $j)->get_tile();
 		unless ($tile_on_board) {
-			$self->{tiles}{"$i,$j"} = Tile->new(substr($word, $index, 1));
+			my $tile = Tile->new(substr($word, $index, 1));
+			$self->{tiles}{"$i,$j"} = $tile;
+			$tile->set_location($i, $j);
 		}
 		$i += $di;
 		$j += $dj;
@@ -73,60 +79,38 @@ sub set_word_reverse {
 
 sub evaluate {
 	my ($self) = @_;
-	
-	my @multipliers;		# List of the "Double/Triple Word Score" bonuses under new tiles
-	my $sum_on_board = 0;	# Sum of values of the relevant tiles on the board before the move
-	my $new_sum = 0;		# Sum of values of the new tiles we're placing
-	my %tiles_checked;		# Tiles on the board that we've already added to $sum_on_board
-	while (my ($location, $tile) = each %{$self->{tiles}}) {
-		$location =~ /(\d+)\,(\d+)/;
-		my ($i, $j) = ($1, $2);
-		
-		# Get the sum of the values of the tiles already on the board that are connected to this
-		# tile in the same row/column. Do not consider their bonuses
-		my $directions = Board::get_directions();
-		for my $d (@$directions) {
-			my $tiles_on_board = $self->{board}->get_tiles_in_direction($i, $j, $d->[0], $d->[1]);
-			for my $board_tile (@$tiles_on_board) {
-				# Make sure we are not double-counting tiles on the board
-				unless ($tiles_checked{$board_tile}) {
-					$sum_on_board += $board_tile->get_value();
-					$tiles_checked{$board_tile} = 1;
+
+	my $total_score = 0;
+	for my $tiles (@{$self->get_word_tiles()}) {
+		my $word_score = 0;
+		my $multiplier = 1;
+		for my $tile (@$tiles) {
+			my ($i, $j) = @{Utils::split_coord($tile->get_location())};
+			my $bonus = $self->{board}->get_space($i, $j)->get_bonus();
+
+			# If the tile is on the board already, we don't care about the bonus underneath.
+			if ($tile->is_on_board() || !$bonus) {
+				$word_score += $tile->get_value();
+			}
+			else {
+				my $b_value = substr($bonus, 0, 1);
+				my $b_type = substr($bonus, 1, 1);
+
+				if ($b_type eq 'L') {
+					$word_score += $tile->get_value() * $b_value;
+				}
+				else {
+					$multiplier *= $b_value;
+					$word_score += $tile->get_value();
 				}
 			}
 		}
-		
-		# Now add the value of the new tile being placed, including relevant bonuses.
-		my $value = $tile->get_value();
-		my $bonus = $self->{board}->get_space($i, $j)->get_bonus() =~ /(\d)([WL])/;
-		if ($bonus) {
-			my ($bonus_amount, $bonus_type) = ($1, $2);
-			if ($bonus_type eq 'L') {
-				$value *= $bonus_amount;
-			}
-			elsif ($bonus_type eq 'W') {
-				push(@multipliers, $bonus_amount);
-			}
-		}
-		$new_sum += $value;
-	}
-	
-	# Multiply the sum of the new tile values by each Word Score bonus
-	for my $multiplier (@multipliers) {
-		$new_sum *= $multiplier;
-	}
-	
-	# Total sum is score of tiles already on board + score of new tiles, including bonuses
-	my $score = $sum_on_board + $new_sum;
-	$self->{value} = $score;
-	return $score;
-}
 
-sub get_value {
-	my ($self) = @_;
-	
-	$self->evaluate() if $self->{value} == 0;
-	return $self->{value};
+		$total_score += $word_score * $multiplier;
+	}
+
+	$self->{value} = $total_score;
+	return $total_score;
 }
 
 sub get_tiles {
@@ -231,8 +215,18 @@ sub get_direction {
 		}
 	}
 	else {
-		# If there's only one tile, the result is arbitrary.
-		return 'h';
+		# If there's only one tile, check the surrounding tiles on the board
+		# and decide accordingly.
+		my ($i, $j) = @{Utils::split_coord($locations[0])};
+		my $left_tiles = scalar @{$self->{board}->get_tiles_in_direction($i, $j, -1, 0)};
+		my $right_tiles = scalar @{$self->{board}->get_tiles_in_direction($i, $j, 1, 0)};
+
+		if ($left_tiles + $right_tiles) {
+			return 'h';
+		}
+		else {
+			return 'v';
+		}
 	}
 }
 
