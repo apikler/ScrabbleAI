@@ -22,6 +22,15 @@ sub coord_position {
 	return @result;
 }
 
+# Given a coordinate expressed as a string like "2,3" returns the coordinate
+# as an arrayref: [2, 3].
+sub split_coord {
+	my ($string) = @_;
+
+	$string =~ /(\d+)\,(\d+)/;
+	return [$1, $2];
+}
+
 # Returns 1 if all the elements of the given arrayref are equal, 0 otherwise.
 # Uses numeric comparision unless $string == 1.
 sub same_elements {

@@ -166,8 +166,12 @@ sub get_dimensions {
 sub make_move {
 	my ($self) = @_;
 
+	# my @words = $self->{move}->get_words();
+	warn "direction: " . $self->{move}->get_direction();
+	warn "words: " . Dumper($self->{move}->get_words());
+
 	if ($self->{move}->legal()) {
-		$self->{window}->set_status("Legal move!");
+		$self->{window}->set_status("Legal move! Value: " . $self->{move}->get_value());
 		$self->{board}->commit_spaces();
 		$self->{rack}->commit();
 

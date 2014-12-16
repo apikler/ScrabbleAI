@@ -18,6 +18,7 @@ sub new {
 		tiles => {},	# Hashref of 'i,j' => Tile being placed
 		board => $board,
 		value => 0,
+		transposed => 0,
 	}, $class);
 	
 	return $self;
@@ -145,6 +146,8 @@ sub transpose {
 	}
 	
 	$self->{tiles} = \%newtiles;
+
+	$self->{transposed} = $self->{transposed} ? 0 : 1;
 }
 
 # Returns 1 if this Move contains at least one anchor (as returned by Board),
@@ -205,17 +208,129 @@ sub legal {
 	return $self->contains_anchor() && $self->straight_line();
 }
 
-# Returns a hash that describes whether each new word created by
-# this move is legal. The hash has this form:
-# { word => legality } where legality is 0 or 1.
-# Empty if the move is not legal.
-# TODO
-sub get_word_validity {
+# Returns "h" or "v" depending on whether this move is horizontal or vertical.
+# Returns undef if the move is empty.
+# Warning: result is undefined if the move is not in a straight line.
+sub get_direction {
+	my ($self) = @_;
+
+	my @locations = keys %{$self->{tiles}};
+	return undef unless scalar @locations;
+
+	my $direction;
+	if (@locations > 1) {
+		# Use the first two locations in determining the direction.
+		my $i0 = Utils::split_coord($locations[0])->[0];
+		my $i1 = Utils::split_coord($locations[1])->[0];
+
+		if ($i0 == $i1) {
+			return 'v';
+		}
+		else {
+			return 'h';
+		}
+	}
+	else {
+		# If there's only one tile, the result is arbitrary.
+		return 'h';
+	}
+}
+
+# Returns an array of the locations of the tiles in this move, sorted
+# from left to right or top to bottom.
+sub get_sorted_locations {
+	my ($self) = @_;
+
+	my $direction = $self->get_direction();
+	return () unless $direction;
+
+	my @locations = keys %{$self->{tiles}};
+
+	if ($direction eq 'h') {
+		# Want to sort by the i coordinate
+		return sort { Utils::split_coord($a)->[0] <=> Utils::split_coord($b)->[0] } @locations;
+	}
+	else {
+		# Sort by the j coordinate
+		return sort { Utils::split_coord($a)->[1] <=> Utils::split_coord($b)->[1] } @locations;
+	}
+}
+
+# Returns an arrayref of arrays, each of which consists of tiles, in order,
+# that make up words created by this move. These words may include tiles that
+# were already on the board. The words are not necessarily valid words.
+# Returns the empty array if move is not legal.
+sub get_word_tiles {
 	my ($self) = @_;
 
 	return () unless $self->legal();
 
+	# To simplify things, transpose everything if the move is vertical.
+	my $orig_direction = $self->get_direction();
+	if ($orig_direction eq 'v') {
+		$self->transpose();
+		$self->{board}->transpose();
+	}
 
+	my @words;
+	my @locations = $self->get_sorted_locations();
+	my $board = $self->{board};
+
+	# Consider the horizontal word (the "main word") formed by this move
+	my ($i_min, $j) = @{Utils::split_coord($locations[0])};
+	my $i_max = Utils::split_coord($locations[-1])->[0];
+	my @h_word = @{$board->get_tiles_in_direction($i_min, $j, -1, 0)};
+	for my $i ($i_min..$i_max) {
+		# If this position is part of this move, use the tile from the move. Otherwise, there should
+		# already be a tile here on the board, so use that.
+		if (exists $self->{tiles}{"$i,$j"}) {
+			push(@h_word, $self->{tiles}{"$i,$j"});
+		}
+		else {
+			push(@h_word, $board->get_space($i, $j)->get_tile());
+		}
+	}
+
+	push(@h_word, @{$board->get_tiles_in_direction($i_max, $j, 1, 0)});
+	push(@words, \@h_word) if @h_word >= 1;
+
+	# Consider all the vertical cross-words
+	for my $location (@locations) {
+		my ($i, $j) = @{Utils::split_coord($location)};
+		my @v_word = (
+			@{$board->get_tiles_in_direction($i, $j, 0, -1)},
+			$self->{tiles}{$location},
+			@{$board->get_tiles_in_direction($i, $j, 0, 1)},
+		);
+
+		# If this is actually a word (more than 1 character) push it onto the end result
+		push(@words, \@v_word) if @v_word > 1;
+	}
+
+	if ($orig_direction eq 'v') {
+		$self->transpose();
+		$self->{board}->transpose();
+	}
+
+	return \@words;
+}
+
+# Returns an arrayref containing the word(s) created by this move, as strings. The words
+# are not necessarily valid.
+# Empty if the move is not legal.
+sub get_words {
+	my ($self) = @_;
+
+	my @words;
+	for my $tiles (@{$self->get_word_tiles()}) {
+		my $word = '';
+		for my $tile (@$tiles) {
+			$word .= $tile->get();
+		}
+		push(@words, $word);
+	}
+
+	return \@words;
 }
 
 sub str {

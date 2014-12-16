@@ -43,6 +43,7 @@ sub new {
 		# The letter is the actual letter this tile represents on the board; for non-blank tiles
 		# this is the same as the type. For blanks, this is * until set_blank_letter is called.
 		letter => lc($type),
+		on_board => 0, # Flag that indicates whether this tile has been placed on the board.
 	}, $class);
 	
 	return $self;
@@ -59,6 +60,16 @@ sub get {
 	my ($self) = @_;
 	
 	return $self->{letter};
+}
+
+sub set_on_board {
+	my ($self, $on_board) = @_;
+	$self->{on_board} = $on_board;
+}
+
+sub is_on_board {
+	my ($self) = @_;
+	return $self->{on_board};
 }
 
 # If this tile is a blank, sets the letter. Otherwise, does nothing.

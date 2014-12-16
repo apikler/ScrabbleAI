@@ -32,6 +32,7 @@ sub set_tile {
 	my ($self, $tile) = @_;
 	
 	$self->{tile} = $tile;
+	$tile->set_on_board(1);
 }
 
 sub remove_tile {
