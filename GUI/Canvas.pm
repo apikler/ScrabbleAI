@@ -166,12 +166,24 @@ sub get_dimensions {
 sub make_move {
 	my ($self) = @_;
 
-	# my @words = $self->{move}->get_words();
-	warn "direction: " . $self->{move}->get_direction();
-	warn "words: " . Dumper($self->{move}->get_words());
+	# Check if all the words formed by this move are valid
+	my $invalid_word = '';
+	my @words = @{$self->{move}->get_words()};
+	for my $word (@words) {
+		unless ($self->{game}{library}->is_legal_word($word)) {
+			$invalid_word = $word;
+			last;
+		}
+	}
 
-	if ($self->{move}->legal()) {
-		$self->{window}->set_status("Legal move! Value: " . $self->{move}->evaluate());
+	if (scalar @words == 0) {
+		$self->{window}->set_status("That is not a legal move!");
+	}
+	elsif ($invalid_word) {
+		$self->{window}->set_status("\"$invalid_word\" is not a valid word.");
+	}
+	else {
+		$self->{window}->set_status("You have played \"$words[0]\" for " . $self->{move}->evaluate() . " points.");
 
 		$self->{board}->commit_spaces();
 		$self->{rack}->commit();
@@ -183,9 +195,6 @@ sub make_move {
 		$self->{board}->commit_spaces();
 
 		$self->next_turn();
-	}
-	else {
-		$self->{window}->set_status("Illegal move!");
 	}
 }
 

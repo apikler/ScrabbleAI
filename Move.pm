@@ -257,7 +257,7 @@ sub get_sorted_locations {
 sub get_word_tiles {
 	my ($self) = @_;
 
-	return () unless $self->legal();
+	return [] unless $self->legal();
 
 	# To simplify things, transpose everything if the move is vertical.
 	my $orig_direction = $self->get_direction();
