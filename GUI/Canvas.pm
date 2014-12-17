@@ -23,6 +23,7 @@ sub new {
 	$self->{window} = $window;
 	$self->{side} = 0;
 	$self->{dragging} = undef;
+	$self->{selected_blank_tile} = undef;
 	
 	$self->set_center_scroll_region(0);
 	
@@ -64,14 +65,26 @@ sub _handle_press {
 		my $tile = $group;
 		my $space = $tile->parent();
 
-		$tile->reparent($canvas->root);
-		$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
-		$tile->draw($canvas->{side});
+		if ($event->button() == 1) {
+			# Left click; initiate tile dragging
+			if (!$tile->get_tile()->is_on_board()) {
+				$tile->reparent($canvas->root);
+				$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
+				$tile->draw($canvas->{side});
 
-		$canvas->{dragging} = {
-			tile => $tile,
-			source => $space,
-		};
+				$canvas->{dragging} = {
+					tile => $tile,
+					source => $space,
+				};
+			}
+		}
+		elsif ($event->button() == 3) {
+			# Right click. Check if it's a blank tile, and if so, allow user to set its letter.
+			if ($tile->get_tile()->is_blank() && !$tile->get_tile()->is_on_board()) {
+				$canvas->{window}->set_status("Type a letter to set for this blank tile.");
+				$canvas->{selected_blank_tile} = $tile;
+			}
+		}
 	}
 
 	return 1;
@@ -165,6 +178,14 @@ sub get_dimensions {
 
 sub make_move {
 	my ($self) = @_;
+
+	delete $self->{selected_blank_tile};
+
+	# Don't allow the move if it contains a blank tile that hasn't been set.
+	if ($self->{move}->contains_unset_blank()) {
+		$self->{window}->set_status("Please right-click the blank tile to set its letter.");
+		return;
+	}
 
 	# Check if all the words formed by this move are valid
 	my $invalid_word = '';

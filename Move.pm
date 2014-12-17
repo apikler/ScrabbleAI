@@ -330,6 +330,20 @@ sub get_words {
 	return \@words;
 }
 
+# Returns 1 if the move contains at least one blank tile whose letter has not been set.
+# Returns 0 otherwise.
+sub contains_unset_blank {
+	my ($self) = @_;
+
+	for my $tile (values %{$self->{tiles}}) {
+		if ($tile->is_blank() && $tile->get() eq '*') {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 sub str {
 	my ($self) = @_;
 

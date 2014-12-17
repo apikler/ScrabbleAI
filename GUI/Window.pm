@@ -55,6 +55,8 @@ sub new {
 		$self,
 	);
 
+	$self->signal_connect(key_press_event => \&_handle_key, $self->{canvas});
+
 	$self->show_all();
 	
 	return $self;
@@ -134,4 +136,18 @@ sub _ai_timer_callback {
 	return 1;
 }
 
+sub _handle_key {
+	my ($widget, $event, $canvas) = @_;
+
+	# If we're changing the letter on a blank tile, make sure the key is between A and Z.
+	my $keyval = $event->keyval();
+	my $tile = $canvas->{selected_blank_tile};
+	if ($tile && (($keyval >= 97 && $keyval <= 122) || ($keyval >= 65 && $keyval <= 90))) {
+		my $letter = lc(chr($keyval));
+		$tile->get_tile()->set_blank_letter($letter);
+		$canvas->{window}->set_status(sprintf("You have set the blank tile to %s.", uc($letter)));
+		$tile->refresh_text();
+		delete $canvas->{selected_blank_tile};
+	}
+}
 1;

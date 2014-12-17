@@ -59,13 +59,15 @@ sub refresh_text {
 		weight => 500,
 	);
 
-	$self->{value} = Gnome2::Canvas::Item->new(
-		$self,
-		'Gnome2::Canvas::Text',
-		text => $value,
-		family => 'Sans',
-		anchor => 'se',
-	);
+	unless ($self->{tile}->is_blank()) {
+		$self->{value} = Gnome2::Canvas::Item->new(
+			$self,
+			'Gnome2::Canvas::Text',
+			text => $value,
+			family => 'Sans',
+			anchor => 'se',
+		);
+	}
 }
 
 sub draw {
