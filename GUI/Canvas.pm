@@ -183,18 +183,14 @@ sub make_move {
 		$self->{window}->set_status("\"$invalid_word\" is not a valid word.");
 	}
 	else {
-		$self->{window}->set_status("You have played \"$words[0]\" for " . $self->{move}->evaluate() . " points.");
+		$self->{window}->set_status("You have played \"$words[0]\" for " . $self->{move}->evaluate() . " points. Making AI move...");
 
 		$self->{board}->commit_spaces();
 		$self->{rack}->commit();
 
 		$self->next_turn();
 
-		my $aimove = $self->{game}->get_ai_move();
-		$self->{board}->move_to_board($aimove);
-		$self->{board}->commit_spaces();
-
-		$self->next_turn();
+		$self->{window}->make_ai_move();
 	}
 }
 

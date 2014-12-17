@@ -5,6 +5,7 @@ use warnings;
 
 use Gtk2 '-init';
 use Gnome2::Canvas;
+use Glib;
 
 use base qw(Gtk2::Window);
 
@@ -46,6 +47,13 @@ sub new {
 	$vbox_main->pack_end($statusbar, 0, 1, 0);
 	$statusbar->show();
 	$self->{statusbar} = $statusbar;
+
+	$self->{make_ai_move} = 0;
+	Glib::Timeout->add(
+		1000,
+		\&_ai_timer_callback,
+		$self,
+	);
 
 	$self->show_all();
 	
@@ -89,10 +97,41 @@ sub set_status {
 	$self->{statusbar}->push($contextid, $text);
 }
 
+sub make_ai_move {
+	my ($self) = @_;
+
+	$self->{make_ai_move} = 1;
+}
+
 sub _make_move_callback {
 	my ($button, $canvas) = @_;
 
 	$canvas->make_move();
+}
+
+sub _ai_timer_callback {
+	my ($self) = @_;
+
+	if ($self->{make_ai_move}) {
+		$self->{make_ai_move} = 0;
+
+		my $aimove = $self->{game}->get_ai_move();
+		my @words = @{$aimove->get_words()};
+
+		if (@words) {
+			$self->set_status(sprintf('AI has played "%s" for %d points.', $words[0], $aimove->evaluate()));
+
+			$self->{canvas}{board}->move_to_board($aimove);
+			$self->{canvas}{board}->commit_spaces();
+		}
+		else {
+			$self->set_status("AI was unable to make a move!");
+		}
+
+		$self->{canvas}->next_turn();
+	}
+
+	return 1;
 }
 
 1;

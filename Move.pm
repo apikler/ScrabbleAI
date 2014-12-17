@@ -109,6 +109,9 @@ sub evaluate {
 		$total_score += $word_score * $multiplier;
 	}
 
+	# 50 point bonus if all 7 tiles are used
+	$total_score += 50 if keys %{$self->{tiles}} == 7;
+
 	$self->{value} = $total_score;
 	return $total_score;
 }
