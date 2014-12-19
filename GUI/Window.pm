@@ -11,6 +11,7 @@ use base qw(Gtk2::Window);
 
 use Game;
 use GUI::Canvas;
+use GUI::Scoreboard;
 
 use Data::Dumper;
 
@@ -41,6 +42,10 @@ sub new {
 	my $turn_button = Gtk2::Button->new('Make Move');
 	$vbox_widgets->pack_start($turn_button, 0, 0, 0);
 	$turn_button->signal_connect(clicked => \&_make_move_callback, $self->{canvas});
+
+	my $scoreboard = GUI::Scoreboard->new($self->{game});
+	$vbox_widgets->pack_start($scoreboard, 0, 0, 0);
+	$self->{scoreboard} = $scoreboard;
 
 	my $statusbar = Gtk2::Statusbar->new();
 	$statusbar->set_has_resize_grip(1);
@@ -105,6 +110,12 @@ sub make_ai_move {
 	$self->{make_ai_move} = 1;
 }
 
+sub refresh_scoreboard {
+	my ($self) = @_;
+
+	$self->{scoreboard}->refresh();
+}
+
 sub _make_move_callback {
 	my ($button, $canvas) = @_;
 
@@ -125,6 +136,8 @@ sub _ai_timer_callback {
 
 			$self->{canvas}{board}->move_to_board($aimove);
 			$self->{canvas}{board}->commit_spaces();
+
+			$self->refresh_scoreboard();
 		}
 		else {
 			$self->set_status("AI was unable to make a move!");

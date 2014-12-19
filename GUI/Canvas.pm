@@ -204,7 +204,10 @@ sub make_move {
 		$self->{window}->set_status("\"$invalid_word\" is not a valid word.");
 	}
 	else {
-		$self->{window}->set_status("You have played \"$words[0]\" for " . $self->{move}->evaluate() . " points. Making AI move...");
+		my $score = $self->{move}->evaluate();
+		$self->{window}->set_status("You have played \"$words[0]\" for $score points. Making AI move...");
+		$self->{game}->get_player()->increment_score($score);
+		$self->{window}->refresh_scoreboard();
 
 		$self->{board}->commit_spaces();
 		$self->{rack}->commit();

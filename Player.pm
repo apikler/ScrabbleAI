@@ -14,6 +14,7 @@ sub new {
 	my $self = bless({
 		board => $board,
 		rack => Rack->new(),
+		score => 0,
 	}, $class);
 	
 	return $self;
@@ -42,5 +43,17 @@ sub get_rack {
 	return $self->{rack};
 }
 
+# Increments the player's score by the given amount.
+sub increment_score {
+	my ($self, $amount) = @_;
+
+	$self->{score} += $amount;
+}
+
+sub get_score {
+	my ($self) = @_;
+
+	return $self->{score};
+}
 
 1;

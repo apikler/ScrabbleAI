@@ -67,11 +67,13 @@ sub get_aiplayer {
 }
 
 # Returns the AI player's move, removing the relevant tiles from
-# the AI's rack.
+# the AI's rack, and incrementing the AI's score.
 sub get_ai_move {
 	my ($self) = @_;
 
 	my $move = $self->get_aiplayer()->get_move();
+	$self->{aiplayer}->increment_score($move->evaluate());
+
 	my @move_tiles = values %{$move->get_tiles()};
 	foreach my $tile (@move_tiles) {
 		$self->get_aiplayer()->get_rack()->remove($tile->get(), 1);
