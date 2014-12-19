@@ -75,6 +75,7 @@ sub _handle_press {
 				$canvas->{dragging} = {
 					tile => $tile,
 					source => $space,
+					draw_count => 0,
 				};
 			}
 		}
@@ -98,6 +99,7 @@ sub _handle_drag {
 		my $tile = $canvas->{dragging}{tile};
 
 		$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
+		$canvas->{dragging}->{draw_count} = 0;
 		$tile->draw($canvas->{side});
 	}
 
@@ -224,7 +226,8 @@ sub draw {
 	# If the user is dragging a tile, we want to skip the redraw. Perl GTK spams lots of
 	# unnecessary redraws that slow the user interface to a crawl if we don't do this.
 	if ($self->{dragging}) {
-		return;
+		$self->{dragging}->{draw_count}++;
+		return if $self->{dragging}->{draw_count} >= 2;
 	}
 
 	my ($w, $h) = $self->get_dimensions();
