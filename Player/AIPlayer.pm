@@ -11,13 +11,14 @@ use Move;
 use Node;
 
 sub new {
-	my ($class, $board, $library) = @_;
+	my ($class, $board, $library, $difficulty) = @_;
 	
 	my $self = Player->new($board);
 	
 	bless($self, $class);
 	$self->{library} = $library;
-	
+	$self->{difficulty} = $difficulty || 10;
+
 	return $self;
 }
 
@@ -42,8 +43,32 @@ sub get_move {
 	
 	my @moves = sort {$b->{value} <=> $a->{value}} (@across_moves, @down_moves);	
 	
-	my $best_move = $moves[0];
-	return $best_move;
+	return undef unless scalar @moves;
+
+# 	for my $move (@moves) {
+# 		warn "Move worth " . $move->{value};
+# 	}
+
+	return $self->pick_move_from_difficulty(\@moves);
+}
+
+# Given an arrayref of $moves sorted in order of decreasing value, selects an appropriate
+# one based on the difficulty setting.
+sub pick_move_from_difficulty {
+	my ($self, $moves) = @_;
+
+	return undef unless scalar @$moves;
+
+	my $difficulty = 10 - $self->{difficulty};
+
+	my $last_value = $moves->[0]{value};
+	my $value_changes = 0;
+	for my $move (@$moves) {
+		return $move if $value_changes >= $difficulty * 2;
+
+		$value_changes++ if $move->{value} != $last_value;
+		$last_value = $move->{value};
+	}
 }
 
 # Returns an arrayref of all the legal moves the AI can make, sorted in order of decreasing value
