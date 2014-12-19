@@ -26,32 +26,16 @@ sub new {
 	$self->set_title('Scrabble');
 	$self->set_default_size(700, 700);
 	$self->signal_connect(destroy => sub { Gtk2->main_quit(); });
+
+	# An array of widgets that need to get destroyed when switching between the "game" and "intro"
+	# versions of the window.
+	$self->{widgets} = [];
 	
 	my $vbox_main = Gtk2::VBox->new(0, 6);
-	my $vbox_widgets = Gtk2::VBox->new(0, 6);
-	my $hbox = Gtk2::HBox->new(0, 6);
+	$self->{vbox_main} = $vbox_main;
 
 	$self->add($vbox_main);
 	$self->draw_menu_bar($vbox_main);
-
-	$vbox_main->pack_start($hbox, 1, 1, 0);
-	$self->{canvas} = GUI::Canvas->new($self, $game);
-	$hbox->pack_start($self->{canvas}, 1, 1, 0);
-
-	$hbox->pack_start($vbox_widgets, 0, 0, 0);
-	my $turn_button = Gtk2::Button->new('Make Move');
-	$vbox_widgets->pack_start($turn_button, 0, 0, 0);
-	$turn_button->signal_connect(clicked => \&_make_move_callback, $self->{canvas});
-
-	my $scoreboard = GUI::Scoreboard->new($self->{game});
-	$vbox_widgets->pack_start($scoreboard, 0, 0, 0);
-	$self->{scoreboard} = $scoreboard;
-
-	my $statusbar = Gtk2::Statusbar->new();
-	$statusbar->set_has_resize_grip(1);
-	$vbox_main->pack_end($statusbar, 0, 1, 0);
-	$statusbar->show();
-	$self->{statusbar} = $statusbar;
 
 	$self->{make_ai_move} = 0;
 	Glib::Timeout->add(
@@ -60,11 +44,52 @@ sub new {
 		$self,
 	);
 
-	$self->signal_connect(key_press_event => \&_handle_key, $self->{canvas});
+	$self->show_all();
+
+	$self->draw_version('game');
+
+	return $self;
+}
+
+# Draws the indicated version (screen) of the window. $version must be "game" or "intro".
+sub draw_version {
+	my ($self, $version) = @_;
+
+	$self->destroy();
+	my $vbox_main = $self->{vbox_main};
+
+	if (lc($version) eq 'game') {
+		my $vbox_widgets = Gtk2::VBox->new(0, 6);
+		my $hbox = Gtk2::HBox->new(0, 6);
+
+		$vbox_main->pack_start($hbox, 1, 1, 0);
+		$self->{canvas} = GUI::Canvas->new($self, $self->{game});
+		$hbox->pack_start($self->{canvas}, 1, 1, 0);
+
+		$hbox->pack_start($vbox_widgets, 0, 0, 0);
+		my $turn_button = Gtk2::Button->new('Make Move');
+		$vbox_widgets->pack_start($turn_button, 0, 0, 0);
+		$turn_button->signal_connect(clicked => \&_make_move_callback, $self->{canvas});
+
+		my $scoreboard = GUI::Scoreboard->new($self->{game});
+		$vbox_widgets->pack_start($scoreboard, 0, 0, 0);
+		$self->{scoreboard} = $scoreboard;
+
+		$self->signal_connect(key_press_event => \&_handle_key, $self->{canvas});
+
+		my $statusbar = Gtk2::Statusbar->new();
+		$statusbar->set_has_resize_grip(1);
+		$vbox_main->pack_end($statusbar, 0, 1, 0);
+		$statusbar->show();
+		$self->{statusbar} = $statusbar;
+
+		push(@{$self->{widgets}}, $vbox_widgets, $hbox, $statusbar);
+	}
+	else {
+		# TODO
+	}
 
 	$self->show_all();
-	
-	return $self;
 }
 
 sub draw_menu_bar {
@@ -94,6 +119,16 @@ sub draw_menu_bar {
 	$menubar->append($helpmenu_item);
 	
 	$box->pack_start($menubar, 0, 0, 0);
+}
+
+sub destroy {
+	my ($self) = @_;
+
+	for my $widget (@{$self->{widgets}}) {
+		$widget->destroy();
+	}
+
+	$self->{widgets} = [];
 }
 
 # Sets the given text as the status in the statusbar at the bottom of the window.
