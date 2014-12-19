@@ -85,6 +85,7 @@ sub draw_version {
 		$vbox_main->pack_end($statusbar, 0, 1, 0);
 		$statusbar->show();
 		$self->{statusbar} = $statusbar;
+		$self->set_status('Please drag tiles to the middle of the board to begin.');
 
 		push(@{$self->{widgets}}, $vbox_widgets, $hbox, $statusbar);
 	}
@@ -215,9 +216,9 @@ sub _ai_timer_callback {
 		$self->{make_ai_move} = 0;
 
 		my $aimove = $self->{game}->get_ai_move();
-		my @words = @{$aimove->get_words()};
 
-		if (@words) {
+		if ($aimove) {
+			my @words = @{$aimove->get_words()};
 			$self->set_status(sprintf('AI has played "%s" for %d points.', $words[0], $aimove->evaluate()));
 
 			$self->{canvas}{board}->move_to_board($aimove);
@@ -226,7 +227,7 @@ sub _ai_timer_callback {
 			$self->refresh_scoreboard();
 		}
 		else {
-			$self->set_status("AI was unable to make a move!");
+			$self->set_status("AI was unable to make a move. It is now your turn.");
 		}
 
 		$self->{canvas}->next_turn();

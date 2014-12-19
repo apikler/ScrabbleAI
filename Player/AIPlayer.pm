@@ -69,6 +69,9 @@ sub pick_move_from_difficulty {
 		$value_changes++ if $move->{value} != $last_value;
 		$last_value = $move->{value};
 	}
+
+	# If we got to this point, just return the lowest-scoring move.
+	return $moves->[-1];
 }
 
 # Returns an arrayref of all the legal moves the AI can make, sorted in order of decreasing value
