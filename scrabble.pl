@@ -3,13 +3,9 @@ use warnings;
 
 use Gtk2 '-init';
 
-use Game;
 use GUI::Window;
 
-my $game = Game->new();
-$game->start();
-
-my $window = GUI::Window->new($game);
+my $window = GUI::Window->new();
 
 Gtk2->main();
 

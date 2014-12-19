@@ -16,12 +16,10 @@ use GUI::Scoreboard;
 use Data::Dumper;
 
 sub new {
-	my ($class, $game) = @_;
+	my ($class) = @_;
 	
 	my $self = $class->SUPER::new();
 	bless($self, $class);
-	
-	$self->{game} = $game;
 	
 	$self->set_title('Scrabble');
 	$self->set_default_size(700, 700);
@@ -46,7 +44,8 @@ sub new {
 
 	$self->show_all();
 
-	$self->draw_version('game');
+	$self->{difficulty} = 5; # Default difficulty
+	$self->draw_version('intro');
 
 	return $self;
 }
@@ -59,6 +58,10 @@ sub draw_version {
 	my $vbox_main = $self->{vbox_main};
 
 	if (lc($version) eq 'game') {
+		my $game = Game->new($self->{difficulty});
+		$game->start();
+		$self->{game} = $game;
+
 		my $vbox_widgets = Gtk2::VBox->new(0, 6);
 		my $hbox = Gtk2::HBox->new(0, 6);
 
@@ -85,8 +88,49 @@ sub draw_version {
 
 		push(@{$self->{widgets}}, $vbox_widgets, $hbox, $statusbar);
 	}
-	else {
-		# TODO
+	elsif (lc($version) eq 'intro') {
+		my $hbox = Gtk2::HBox->new(1, 0);
+		$vbox_main->pack_start($hbox, 0, 0, 1);
+
+		my $frame = Gtk2::Frame->new("Difficulty");
+		$hbox->pack_start($frame, 1, 1, 0);
+
+		my $vbox_difficulty = Gtk2::VBox->new(0, 0);
+		$frame->add($vbox_difficulty);
+
+		my $previous_button;
+		for my $difficulty (1..10) {
+			my $label;
+			if ($difficulty == 10) {
+				$label = "10 - Extremely hard";
+			}
+			elsif ($difficulty == 1) {
+				$label = "1 - Easiest";
+			}
+			else {
+				$label = sprintf("%d", $difficulty);
+			}
+
+			my $button = Gtk2::RadioButton->new($previous_button, $label);
+			$vbox_difficulty->pack_end($button, 1, 0, 0);
+			$previous_button = $button;
+
+			if ($difficulty == $self->{difficulty}) {
+				$button->set_active(1);
+			}
+
+			$button->signal_connect(toggled => \&_difficulty_callback, {
+				window => $self,
+				difficulty => $difficulty,
+			});
+		}
+
+		my $button = Gtk2::Button->new('Start Game');
+		$hbox->pack_end($button, 1, 1, 0);
+
+		push(@{$self->{widgets}}, $hbox);
+
+		$button->signal_connect(clicked => sub { $self->draw_version('game'); });
 	}
 
 	$self->show_all();
@@ -198,4 +242,16 @@ sub _handle_key {
 		delete $canvas->{selected_blank_tile};
 	}
 }
+
+sub _difficulty_callback {
+	my ($button, $data) = @_;
+
+	if ($button->get_active()) {
+		my $window = $data->{window};
+		my $difficulty = $data->{difficulty};
+
+		$window->{difficulty} = $difficulty;
+	}
+}
+
 1;
