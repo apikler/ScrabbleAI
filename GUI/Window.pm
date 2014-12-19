@@ -143,7 +143,14 @@ sub draw_menu_bar {
 	$self->{menubar} = $menubar;
 	
 	my $filemenu = Gtk2::Menu->new();
+
+	my $new_game_item = Gtk2::ImageMenuItem->new('_New Game');
+	$new_game_item->set_image(Gtk2::Image->new_from_stock('gtk-new', 'menu'));
+	$new_game_item->signal_connect(activate => sub { $self->draw_version('intro'); });
+	$filemenu->append($new_game_item);
+
 	$filemenu->append(Gtk2::SeparatorMenuItem->new());
+
 	my $quit_item = Gtk2::ImageMenuItem->new_from_stock('gtk-quit', undef);
 	$quit_item->signal_connect(activate => sub { Gtk2->main_quit(); });
 	$filemenu->append($quit_item);
