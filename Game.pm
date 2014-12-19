@@ -74,7 +74,7 @@ sub get_ai_move {
 	my $move = $self->get_aiplayer()->get_move();
 	my @move_tiles = values %{$move->get_tiles()};
 	foreach my $tile (@move_tiles) {
-		$self->get_aiplayer()->get_rack()->remove($tile->get());
+		$self->get_aiplayer()->get_rack()->remove($tile->get(), 1);
 	}
 
 	return $move;

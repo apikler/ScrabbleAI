@@ -10,6 +10,7 @@ use List::Util qw(sum);
 use Tile;
 use Board;
 use Utils;
+use Rack;
 
 sub new {
 	my ($class, $board) = @_;
@@ -40,36 +41,67 @@ sub add {
 	$self->{tiles}{"$i,$j"} = $tile;
 }
 
-sub set_word {
-	my ($self, $word, $i, $j, $down) = @_;
-	
-	my ($di, $dj) = $down ? (0, 1) : (1, 0);
-	my $index = 0;
-	while ($self->{board}->in_bounds($i, $j) && $index < length($word)) {
-		my $tile_on_board = $self->{board}->get_space($i, $j)->get_tile();
-		unless ($tile_on_board) {
-			my $tile = Tile->new(substr($word, $index, 1));
-			$self->{tiles}{"$i,$j"} = $tile;
-			$tile->set_location($i, $j);
-		}
-		$i += $di;
-		$j += $dj;
-		$index++;
-	}
-}
+# sub set_word {
+# 	my ($self, $word, $i, $j, $down) = @_;
+#
+# 	my ($di, $dj) = $down ? (0, 1) : (1, 0);
+# 	my $index = 0;
+# 	while ($self->{board}->in_bounds($i, $j) && $index < length($word)) {
+# 		my $tile_on_board = $self->{board}->get_space($i, $j)->get_tile();
+# 		unless ($tile_on_board) {
+# 			my $tile = Tile->new(substr($word, $index, 1));
+# 			$self->{tiles}{"$i,$j"} = $tile;
+# 			$tile->set_location($i, $j);
+# 		}
+# 		$i += $di;
+# 		$j += $dj;
+# 		$index++;
+# 	}
+# }
 
-# TODO: Fix bug with putting blanks on board where they become actual letter tiles with values
+# Sets this move such that it creates the given word horizontally, ending at $i, $j.
+# If $tiles is an arrayref of tiles, attempts to use copies of those tiles, and uses
+# a blank tile if a given tile doesn't exist in $tiles.
 sub set_word_reverse {
-	my ($self, $word, $i, $j, $up) = @_;
+	my ($self, $word, $i, $j, $tiles) = @_;
 	
-	my ($di, $dj) = $up ? (0, -1) : (-1, 0);
+	my $rack; # Dummy rack to use if $tiles has been set.
+	if ($tiles) {
+		$rack = Rack->new();
+		$rack->set_tiles($tiles);
+	}
+
+	my ($di, $dj) = (-1, 0);
 	my $index = length($word) - 1;
 	while ($self->{board}->in_bounds($i, $j) && $index >= 0) {
 		my $tile_on_board = $self->{board}->get_space($i, $j)->get_tile();
 		unless ($tile_on_board) {
-			my $tile = Tile->new(substr($word, $index, 1));
+			my $letter = substr($word, $index, 1);
+			my $tile;
+			if ($rack) {
+				if ($rack->remove($letter)) {
+					# This letter is in $tiles, so use a normal tile
+					$tile = Tile->new($letter);
+				}
+				else {
+					# The letter is not in $tiles, so use a blank tile.
+					$rack->remove("*");
+					$tile = Tile->new("*");
+					$tile->set_blank_letter($letter);
+				}
+			}
+			else {
+				$tile = Tile->new($letter);
+			}
+
+
 			$self->{tiles}{"$i,$j"} = $tile;
-			$tile->set_location($i, $j);
+			if ($self->{board}->is_transposed()) {
+				$tile->set_location($j, $i);
+			}
+			else {
+				$tile->set_location($i, $j);
+			}
 		}
 		$i += $di;
 		$j += $dj;

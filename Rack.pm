@@ -25,13 +25,15 @@ sub add_tile {
 sub get_tiles {
 	my ($self) = @_;
 
-	return $self->{tiles};
+	my @tiles = @{$self->{tiles}};
+	return \@tiles;
 }
 
 sub set_tiles {
 	my ($self, $tiles) = @_;
 
-	$self->{tiles} = $tiles;
+	my @tiles_copy = @$tiles;
+	$self->{tiles} = \@tiles_copy;
 }
 
 # Sets the contents of the rack to the tiles in $string.
@@ -54,15 +56,20 @@ sub contains {
 
 # Returns and removes a tile of the chosen letter type from the rack, or returns undef if there
 # is no such tile.
+# If $remove_blank is true, attempts to remove a blank tile from the rack if a given letter can't be found.
 sub remove {
-	my ($self, $letter) = @_;
+	my ($self, $letter, $remove_blank) = @_;
 	
 	$letter = lc($letter);
 	my $tiles = $self->{tiles};
 	for my $index (0..$#$tiles) {
 		return splice(@$tiles, $index, 1) if $tiles->[$index]->get() eq $letter;
 	}
-	
+
+	if ($remove_blank) {
+		return $self->remove("*");
+	}
+
 	return undef;
 }
 

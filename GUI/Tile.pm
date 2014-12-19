@@ -26,6 +26,7 @@ sub new {
 	);
 
 	$self->{tile} = $tile;
+
 	$self->refresh_text();
 
 	return $self;

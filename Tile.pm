@@ -63,6 +63,12 @@ sub get {
 	return $self->{letter};
 }
 
+sub get_type {
+	my ($self) = @_;
+
+	return $self->{type};
+}
+
 sub set_on_board {
 	my ($self, $on_board) = @_;
 	$self->{on_board} = $on_board;

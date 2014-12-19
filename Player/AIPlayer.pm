@@ -25,6 +25,9 @@ sub get_move {
 	my ($self) = @_;
 	
 	warn "AI Rack: " . $self->{rack}->str() . "\n";
+	# Save the tiles currently held by the AI for use in save_move
+	my @tiles = @{$self->{rack}->get_tiles()};
+	$self->{all_tiles} = \@tiles;
 	
 	$self->{moves} = [];
 	$self->get_moves();
@@ -40,7 +43,6 @@ sub get_move {
 	my @moves = sort {$b->{value} <=> $a->{value}} (@across_moves, @down_moves);	
 	
 	my $best_move = $moves[0];
-	# print "best move: " . Dumper($best_move->{tiles});
 	return $best_move;
 }
 
@@ -123,7 +125,7 @@ sub save_move {
 	my ($self, $word, $i, $j) = @_;
 	
 	my $move = Move->new($self->{board});
-	$move->set_word_reverse($word, $i, $j);
+	$move->set_word_reverse($word, $i, $j, $self->{all_tiles});
 	$move->evaluate();
 	push(@{$self->{moves}}, $move);
 }
