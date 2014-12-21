@@ -160,6 +160,23 @@ sub _handle_release {
 	return 1;
 }
 
+# Returns the tiles the user has placed on the board this turn to their rack.
+sub return_tiles_to_rack {
+	my ($self) = @_;
+
+	$self->{board}->foreach_space(sub {
+		my ($space, $i, $j) = @_;
+
+		if ($space->has_tile() && !$space->get_tile()->is_committed()) {
+			my $tile = $space->get_tile();
+			my $rack_space = $self->{rack}->get_first_empty_space();
+			$tile->reparent($rack_space);
+			$space->remove_tile();
+			$rack_space->set_tile($tile);
+		}
+	});
+}
+
 sub next_turn {
 	my ($self) = @_;
 

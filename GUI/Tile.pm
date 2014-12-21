@@ -38,6 +38,14 @@ sub get_tile {
 	return $self->{tile};
 }
 
+# Returns 1 if the tile has been on the board since the beginning of of the turn,
+# 0 otherwise.
+sub is_committed {
+	my ($self) = @_;
+
+	return $self->{tile}->is_on_board();
+}
+
 sub refresh_text {
 	my ($self) = @_;
 

@@ -75,6 +75,10 @@ sub draw_version {
 		$vbox_widgets->pack_start($turn_button, 0, 0, 0);
 		$turn_button->signal_connect(clicked => \&_make_move_callback, $self->{canvas});
 
+		my $pass_button = Gtk2::Button->new('Pass Turn');
+		$vbox_widgets->pack_start($pass_button, 0, 0, 0);
+		$pass_button->signal_connect(clicked => \&_pass_turn_callback, $self);
+
 		my $scoreboard = GUI::Scoreboard->new($self->{game});
 		$vbox_widgets->pack_start($scoreboard, 0, 0, 0);
 		$self->{scoreboard} = $scoreboard;
@@ -208,6 +212,17 @@ sub _make_move_callback {
 	my ($button, $canvas) = @_;
 
 	$canvas->make_move();
+}
+
+sub _pass_turn_callback {
+	my ($button, $window) = @_;
+
+	$window->set_status("You have passed your turn. Making AI move...");
+
+	$window->{canvas}->return_tiles_to_rack();
+	$window->{canvas}->next_turn();
+
+	$window->make_ai_move();
 }
 
 sub _ai_timer_callback {
