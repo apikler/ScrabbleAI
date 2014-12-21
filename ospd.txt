@@ -53947,6 +53947,7 @@ qanat
 qanats
 qat
 qats
+qi
 qindar
 qindarka
 qindars

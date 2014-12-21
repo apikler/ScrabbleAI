@@ -20,6 +20,13 @@ sub new {
 	return $self;
 }
 
+sub reset {
+	my ($self) = @_;
+
+	$self->{score} = 0;
+	$self->{rack}->empty();
+}
+
 # Fills the player's rack up to 7 tiles. If there are less than that many
 # tiles remaining in the bag, all of them are drawn.
 sub draw_hand {

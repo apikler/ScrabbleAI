@@ -50,6 +50,8 @@ sub new {
 sub reset {
 	my ($self) = @_;
 	
+	$self->{tiles} = [];
+
 	for my $type (keys %amounts) {
 		for my $i (1..$amounts{$type}) {
 			push(@{$self->{tiles}}, Tile->new($type));

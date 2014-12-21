@@ -58,9 +58,10 @@ sub draw_version {
 	my $vbox_main = $self->{vbox_main};
 
 	if (lc($version) eq 'game') {
-		my $game = Game->new($self->{difficulty});
-		$game->start();
-		$self->{game} = $game;
+		unless ($self->{game}) {
+			$self->{game} = Game->new();
+		}
+		$self->{game}->reset($self->{difficulty});
 
 		my $vbox_widgets = Gtk2::VBox->new(0, 6);
 		my $hbox = Gtk2::HBox->new(0, 6);

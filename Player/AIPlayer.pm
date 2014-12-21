@@ -11,15 +11,21 @@ use Move;
 use Node;
 
 sub new {
-	my ($class, $board, $library, $difficulty) = @_;
+	my ($class, $board, $library) = @_;
 	
 	my $self = Player->new($board);
 	
 	bless($self, $class);
 	$self->{library} = $library;
-	$self->{difficulty} = $difficulty || 10;
+	$self->{difficulty} = 10; # Default difficulty
 
 	return $self;
+}
+
+sub set_difficulty {
+	my ($self, $difficulty) = @_;
+
+	$self->{difficulty} = $difficulty;
 }
 
 sub get_move {

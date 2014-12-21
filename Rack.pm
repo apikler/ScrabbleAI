@@ -36,6 +36,11 @@ sub set_tiles {
 	$self->{tiles} = \@tiles_copy;
 }
 
+sub empty {
+	my ($self) = @_;
+	$self->set_tiles([]);
+}
+
 # Sets the contents of the rack to the tiles in $string.
 sub set {
 	my ($self, $string) = @_;

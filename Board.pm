@@ -11,9 +11,7 @@ use Tile;
 sub new {
 	my ($class) = @_;
 	
-	my $self = bless({
-		transposed => 0,
-	}, $class);
+	my $self = bless({}, $class);
 	$self->reset();
 	
 	return $self;
@@ -21,7 +19,7 @@ sub new {
 
 sub reset {
 	my ($self) = @_;
-	
+
 	my %bonuses_by_type = (
 		'3W' => [
 			'0,0',
@@ -112,6 +110,7 @@ sub reset {
 	}
 
 	$self->{spaces} = \%spaces;
+	$self->{transposed} = 0;
 }
 
 sub get_space {

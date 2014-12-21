@@ -11,7 +11,7 @@ use Player::AIPlayer;
 use Bag;
 
 sub new {
-	my ($class, $difficulty) = @_;
+	my ($class) = @_;
 	
 	my $library = Library->new();
 	my $board = Board->new();
@@ -19,7 +19,7 @@ sub new {
 	my $self = bless({
 		board => $board,
 		library => $library,
-		aiplayer => Player::AIPlayer->new($board, $library, $difficulty),
+		aiplayer => Player::AIPlayer->new($board, $library),
 		player => Player->new($board),
 		bag => Bag->new(),
 		turn => 0,
@@ -28,8 +28,15 @@ sub new {
 	return $self;
 }
 
-sub start {
-	my ($self) = @_;
+sub reset {
+	my ($self, $difficulty) = @_;
+
+	$self->{bag}->reset();
+	$self->{board}->reset();
+
+	$self->{player}->reset();
+	$self->{aiplayer}->reset();
+	$self->{aiplayer}->set_difficulty($difficulty);
 
 	$self->fill_racks();
 }
