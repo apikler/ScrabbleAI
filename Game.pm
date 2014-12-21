@@ -73,6 +73,11 @@ sub get_aiplayer {
 	return $self->{aiplayer};
 }
 
+sub bag_count {
+	my ($self) = @_;
+	return $self->{bag}->count();
+}
+
 # Returns the AI player's move, removing the relevant tiles from
 # the AI's rack, and incrementing the AI's score.
 sub get_ai_move {

@@ -226,12 +226,12 @@ sub make_move {
 		my $score = $self->{move}->evaluate();
 		$self->{window}->set_status("You have played \"$words[0]\" for $score points. Making AI move...");
 		$self->{game}->get_player()->increment_score($score);
-		$self->{window}->refresh_scoreboard();
 
 		$self->{board}->commit_spaces();
 		$self->{rack}->commit();
 
 		$self->next_turn();
+		$self->{window}->refresh_gameinfo();
 
 		$self->{window}->make_ai_move();
 	}

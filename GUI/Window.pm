@@ -12,6 +12,7 @@ use base qw(Gtk2::Window);
 use Game;
 use GUI::Canvas;
 use GUI::GameInfoFrame::Scoreboard;
+use GUI::GameInfoFrame::BagCount;
 
 use Data::Dumper;
 
@@ -82,6 +83,10 @@ sub draw_version {
 		my $scoreboard = GUI::GameInfoFrame::Scoreboard->new($self->{game});
 		$vbox_widgets->pack_start($scoreboard, 0, 0, 0);
 		$self->{scoreboard} = $scoreboard;
+
+		my $bagcount = GUI::GameInfoFrame::BagCount->new($self->{game});
+		$vbox_widgets->pack_start($bagcount, 0, 0, 0);
+		$self->{bagcount} = $bagcount;
 
 		$self->signal_connect(key_press_event => \&_handle_key, $self->{canvas});
 
@@ -202,10 +207,12 @@ sub make_ai_move {
 	$self->{make_ai_move} = 1;
 }
 
-sub refresh_scoreboard {
+# Refreshes the scoreboard and the bag tile count displays.
+sub refresh_gameinfo {
 	my ($self) = @_;
 
 	$self->{scoreboard}->refresh();
+	$self->{bagcount}->refresh();
 }
 
 sub _make_move_callback {
@@ -239,14 +246,13 @@ sub _ai_timer_callback {
 
 			$self->{canvas}{board}->move_to_board($aimove);
 			$self->{canvas}{board}->commit_spaces();
-
-			$self->refresh_scoreboard();
 		}
 		else {
 			$self->set_status("AI was unable to make a move. It is now your turn.");
 		}
 
 		$self->{canvas}->next_turn();
+		$self->refresh_gameinfo();
 	}
 
 	return 1;
