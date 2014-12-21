@@ -11,7 +11,7 @@ use base qw(Gtk2::Window);
 
 use Game;
 use GUI::Canvas;
-use GUI::Scoreboard;
+use GUI::GameInfoFrame::Scoreboard;
 
 use Data::Dumper;
 
@@ -79,7 +79,7 @@ sub draw_version {
 		$vbox_widgets->pack_start($pass_button, 0, 0, 0);
 		$pass_button->signal_connect(clicked => \&_pass_turn_callback, $self);
 
-		my $scoreboard = GUI::Scoreboard->new($self->{game});
+		my $scoreboard = GUI::GameInfoFrame::Scoreboard->new($self->{game});
 		$vbox_widgets->pack_start($scoreboard, 0, 0, 0);
 		$self->{scoreboard} = $scoreboard;
 

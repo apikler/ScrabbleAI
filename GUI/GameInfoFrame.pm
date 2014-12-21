@@ -1,4 +1,4 @@
-package GUI::Scoreboard;
+package GUI::GameInfoFrame;
 
 use strict;
 use warnings;
@@ -10,7 +10,7 @@ use base qw(Gtk2::Frame);
 sub new {
 	my ($class, $game) = @_;
 
-	my $self = $class->SUPER::new("Scoreboard");
+	my $self = $class->SUPER::new();
 	bless($self, $class);
 
 	$self->{game} = $game;
@@ -23,15 +23,6 @@ sub new {
 	$self->refresh();
 
 	return $self;
-}
-
-sub refresh {
-	my ($self) = @_;
-
-	$self->{label}->set_text(sprintf("You: %d\nAI: %d",
-		$self->{game}->get_player()->get_score(),
-		$self->{game}->get_aiplayer()->get_score(),
-	));
 }
 
 1;
