@@ -28,6 +28,11 @@ sub set_difficulty {
 	$self->{difficulty} = $difficulty;
 }
 
+sub get_difficulty {
+	my ($self) = @_;
+	return $self->{difficulty};
+}
+
 sub get_move {
 	my ($self) = @_;
 	

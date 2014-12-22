@@ -85,6 +85,18 @@ sub size {
 	return scalar(@{$self->{tiles}});
 }
 
+# Returns the total value of the tiles in the rack.
+sub value {
+	my ($self) = @_;
+
+	my $total = 0;
+	for my $tile (@{$self->{tiles}}) {
+		$total += $tile->get_value();
+	}
+
+	return $total;
+}
+
 sub str {
 	my ($self) = @_;
 	

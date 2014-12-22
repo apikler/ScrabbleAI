@@ -24,6 +24,7 @@ sub new {
 	$self->{side} = 0;
 	$self->{dragging} = undef;
 	$self->{selected_blank_tile} = undef;
+	$self->{disabled} = 0;
 	
 	$self->set_center_scroll_region(0);
 	
@@ -53,8 +54,16 @@ sub new {
 	return $self;
 }
 
+sub set_disabled {
+	my ($self, $disabled) = @_;
+
+	$self->{disabled} = $disabled;
+}
+
 sub _handle_press {
 	my ($widget, $event, $canvas) = @_;
+
+	return 1 if $canvas->{disabled};
 
 	my ($x, $y) = $event->get_coords();
 	my $item = $canvas->get_item_at($x, $y);
@@ -94,6 +103,8 @@ sub _handle_press {
 sub _handle_drag {
 	my ($widget, $event, $canvas) = @_;
 
+	return 1 if $canvas->{disabled};
+
 	my ($x, $y) = $event->get_coords();
 	if ($canvas->{dragging}) {
 		my $tile = $canvas->{dragging}{tile};
@@ -108,6 +119,8 @@ sub _handle_drag {
 
 sub _handle_release {
 	my ($widget, $event, $canvas) = @_;
+
+	return 1 if $canvas->{disabled};
 
 	if ($canvas->{dragging}) {
 		my $tile = $canvas->{dragging}{tile};

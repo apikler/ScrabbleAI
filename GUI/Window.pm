@@ -65,20 +65,24 @@ sub draw_version {
 		$self->{game}->reset($self->{difficulty});
 
 		my $vbox_widgets = Gtk2::VBox->new(0, 6);
+		$vbox_widgets->set_size_request(100);
 		my $hbox = Gtk2::HBox->new(0, 6);
 
 		$vbox_main->pack_start($hbox, 1, 1, 0);
 		$self->{canvas} = GUI::Canvas->new($self, $self->{game});
 		$hbox->pack_start($self->{canvas}, 1, 1, 0);
 
+		my @buttons;
 		$hbox->pack_start($vbox_widgets, 0, 0, 0);
 		my $turn_button = Gtk2::Button->new('Make Move');
 		$vbox_widgets->pack_start($turn_button, 0, 0, 0);
 		$turn_button->signal_connect(clicked => \&_make_move_callback, $self->{canvas});
+		push(@buttons, $turn_button);
 
 		my $pass_button = Gtk2::Button->new('Pass Turn');
 		$vbox_widgets->pack_start($pass_button, 0, 0, 0);
 		$pass_button->signal_connect(clicked => \&_pass_turn_callback, $self);
+		push(@buttons, $pass_button);
 
 		my $scoreboard = GUI::GameInfoFrame::Scoreboard->new($self->{game});
 		$vbox_widgets->pack_start($scoreboard, 0, 0, 0);
@@ -98,6 +102,10 @@ sub draw_version {
 		$self->set_status('Please drag tiles to the middle of the board to begin.');
 
 		push(@{$self->{widgets}}, $vbox_widgets, $hbox, $statusbar);
+
+		$self->{passcount} = 0;
+		$self->{buttons} = \@buttons;
+		$self->set_disabled(0);
 	}
 	elsif (lc($version) eq 'intro') {
 		my $hbox = Gtk2::HBox->new(1, 0);
@@ -183,6 +191,16 @@ sub draw_menu_bar {
 	$box->pack_start($menubar, 0, 0, 0);
 }
 
+# Disables the canvas and the clickable buttons in the window according to $disabled.
+sub set_disabled {
+	my ($self, $disabled) = @_;
+
+	$self->{canvas}->set_disabled($disabled);
+	for my $button (@{$self->{buttons}}) {
+		$button->set_sensitive(!$disabled);
+	}
+}
+
 sub destroy {
 	my ($self) = @_;
 
@@ -205,6 +223,7 @@ sub make_ai_move {
 	my ($self) = @_;
 
 	$self->{make_ai_move} = 1;
+	$self->set_disabled(1);
 }
 
 # Refreshes the scoreboard and the bag tile count displays.
@@ -213,6 +232,43 @@ sub refresh_gameinfo {
 
 	$self->{scoreboard}->refresh();
 	$self->{bagcount}->refresh();
+}
+
+# Displays the final score to the player and informs them the game is over.
+sub end_game {
+	my ($self) = @_;
+
+	$self->set_disabled(1);
+
+	$self->{game}->game_end_scoring();
+	$self->refresh_gameinfo();
+
+	my $aiscore = $self->{game}->get_aiplayer()->get_score();
+	my $score = $self->{game}->get_player()->get_score();
+	my $difficulty = $self->{game}->get_aiplayer()->get_difficulty();
+
+	my $message;
+	if ($aiscore == $score) {
+		$message = "Game over. You have tied the Level $difficulty AI.";
+	}
+	elsif ($aiscore > $score) {
+		$message = "Game over. Sorry, but the Level $difficulty AI won. Better luck next time!";
+	}
+	else {
+		$message = "Congratulations! You have beaten the Level $difficulty AI.";
+	}
+
+	my $dialog = Gtk2::MessageDialog->new(
+		$self,
+		'destroy-with-parent',
+		'info',
+		'ok',
+		$message,
+	);
+	$dialog->run();
+	$dialog->destroy();
+
+	$self->set_status($message);
 }
 
 sub _make_move_callback {
@@ -228,6 +284,8 @@ sub _pass_turn_callback {
 
 	$window->{canvas}->return_tiles_to_rack();
 	$window->{canvas}->next_turn();
+
+	$window->{passcount}++;
 
 	$window->make_ai_move();
 }
@@ -246,9 +304,19 @@ sub _ai_timer_callback {
 
 			$self->{canvas}{board}->move_to_board($aimove);
 			$self->{canvas}{board}->commit_spaces();
+
+			$self->{passcount} = 0;
+
+			$self->set_disabled(0);
 		}
 		else {
-			$self->set_status("AI was unable to make a move. It is now your turn.");
+			if ($self->{passcount}) {
+				$self->end_game();
+			}
+			else {
+				$self->set_status("AI was unable to make a move. It is now your turn.");
+				$self->set_disabled(0);
+			}
 		}
 
 		$self->{canvas}->next_turn();

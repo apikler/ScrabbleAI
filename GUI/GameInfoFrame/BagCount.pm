@@ -12,7 +12,7 @@ sub refresh {
 
 	$self->set_label("Bag");
 
-	$self->{label}->set_text($self->{game}->bag_count() . " tiles");
+	$self->{label}->set_markup(sprintf("<b>%d</b> tiles", $self->{game}->bag_count()));
 }
 
 1;

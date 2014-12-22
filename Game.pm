@@ -78,6 +78,32 @@ sub bag_count {
 	return $self->{bag}->count();
 }
 
+# Does the scoring at the end of the game, where:
+#	- Each player loses points equal to the sum of their unplayed letters
+#	- Each player who played all their tiles receives points equal to the sum
+#		of all the other players' unplayed letters.
+sub game_end_scoring {
+	my ($self) = @_;
+
+	my @players = ($self->{player}, $self->{aiplayer});
+
+	# Subtract each player's unplayed letter total from their score.
+	my $unplayed_total = 0;
+	for my $player (@players) {
+		my $unplayed = $player->get_rack()->value();
+		$unplayed_total += $unplayed;
+		$player->increment_score(-$unplayed);
+	}
+
+	# For each player that played all their letters, increment their score
+	# by the sum of the value of the unplayed letters.
+	for my $player (@players) {
+		if ($player->get_rack()->size() == 0) {
+			$player->increment_score($unplayed_total);
+		}
+	}
+}
+
 # Returns the AI player's move, removing the relevant tiles from
 # the AI's rack, and incrementing the AI's score.
 sub get_ai_move {
