@@ -92,6 +92,11 @@ sub draw_version {
 		$vbox_widgets->pack_start($bagcount, 0, 0, 0);
 		$self->{bagcount} = $bagcount;
 
+		my $return_button = Gtk2::Button->new("Return Tiles\nto Rack");
+		$vbox_widgets->pack_start($return_button, 0, 0, 0);
+		$return_button->signal_connect(clicked => \&_return_tiles_callback, $self);
+		push(@buttons, $return_button);
+
 		$self->signal_connect(key_press_event => \&_handle_key, $self->{canvas});
 
 		my $statusbar = Gtk2::Statusbar->new();
@@ -275,6 +280,12 @@ sub _make_move_callback {
 	my ($button, $canvas) = @_;
 
 	$canvas->make_move();
+}
+
+sub _return_tiles_callback {
+	my ($button, $window) = @_;
+
+	$window->{canvas}->return_tiles_to_rack();
 }
 
 sub _pass_turn_callback {

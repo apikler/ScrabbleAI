@@ -30,8 +30,10 @@ sub new {
 sub remove {
 	my ($self, $i, $j) = @_;
 
-	$self->{tiles}{"$i,$j"}->clear_location();
-	delete $self->{tiles}{"$i,$j"};
+	if ($self->{tiles}{"$i,$j"}) {
+		$self->{tiles}{"$i,$j"}->clear_location();
+		delete $self->{tiles}{"$i,$j"};
+	}
 }
 
 sub add {

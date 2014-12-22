@@ -183,9 +183,12 @@ sub return_tiles_to_rack {
 		if ($space->has_tile() && !$space->get_tile()->is_committed()) {
 			my $tile = $space->get_tile();
 			my $rack_space = $self->{rack}->get_first_empty_space();
+
 			$tile->reparent($rack_space);
 			$space->remove_tile();
 			$rack_space->set_tile($tile);
+
+			$self->{move}->remove($i, $j);
 		}
 	});
 }
