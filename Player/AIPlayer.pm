@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Data::Dumper;
+use POSIX;
 
 use Tile;
 use Move;
@@ -20,6 +21,11 @@ sub new {
 	$self->{difficulty} = 10; # Default difficulty
 
 	return $self;
+}
+
+# Returns the total number of possible difficulty settings for the AI.
+sub num_difficulties {
+	return 10;
 }
 
 sub set_difficulty {
@@ -70,19 +76,29 @@ sub pick_move_from_difficulty {
 
 	return undef unless scalar @$moves;
 
-	my $difficulty = 10 - $self->{difficulty};
+	my $num_difficulties = $self->num_difficulties();
+	my $difficulty = $num_difficulties - $self->{difficulty};
 
-	my $last_value = $moves->[0]{value};
-	my $value_changes = 0;
+	# An array containing the values of the moves in decreasing order, with one
+	# entry per value.
+	my @move_values = ($moves->[0]{value});
 	for my $move (@$moves) {
-		return $move if $value_changes >= $difficulty * 2;
-
-		$value_changes++ if $move->{value} != $last_value;
-		$last_value = $move->{value};
+		push(@move_values, $move->{value}) if $move_values[-1] != $move->{value};
 	}
 
-	# If we got to this point, just return the lowest-scoring move.
-	return $moves->[-1];
+	my $multiplier = floor(@move_values / $num_difficulties) || 1;
+	my $index = $difficulty * $multiplier;
+	if ($index > $#move_values) {
+		$index = $#move_values
+	}
+
+	my $value = $move_values[$index];
+	my @move_choices = grep {$_->{value} == $value} @$moves;
+
+	# Sort the move choices by the move length to favor longer moves.
+	@move_choices = sort { $b->length() <=> $a->length() } @move_choices;
+
+	return $move_choices[0];
 }
 
 # Returns an arrayref of all the legal moves the AI can make, sorted in order of decreasing value

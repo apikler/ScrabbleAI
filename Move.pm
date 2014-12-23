@@ -156,6 +156,12 @@ sub get_tiles {
 	return $self->{tiles};
 }
 
+sub length {
+	my ($self) = @_;
+
+	return scalar keys %{$self->{tiles}};
+}
+
 # Switches the move's i and j coordinates.
 sub transpose {
 	my ($self) = @_;

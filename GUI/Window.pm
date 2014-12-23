@@ -65,7 +65,7 @@ sub draw_version {
 		$self->{game}->reset($self->{difficulty});
 
 		my $vbox_widgets = Gtk2::VBox->new(0, 6);
-		$vbox_widgets->set_size_request(100);
+		$vbox_widgets->set_size_request(120);
 		my $hbox = Gtk2::HBox->new(0, 6);
 
 		$vbox_main->pack_start($hbox, 1, 1, 0);
