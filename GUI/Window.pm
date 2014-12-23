@@ -74,15 +74,10 @@ sub draw_version {
 
 		my @buttons;
 		$hbox->pack_start($vbox_widgets, 0, 0, 0);
-		my $turn_button = Gtk2::Button->new('Make Move');
-		$vbox_widgets->pack_start($turn_button, 0, 0, 0);
+		my $turn_button = Gtk2::Button->new("Make\nMove");
+		$vbox_widgets->pack_end($turn_button, 0, 0, 0);
 		$turn_button->signal_connect(clicked => \&_make_move_callback, $self->{canvas});
 		push(@buttons, $turn_button);
-
-		my $pass_button = Gtk2::Button->new('Pass Turn');
-		$vbox_widgets->pack_start($pass_button, 0, 0, 0);
-		$pass_button->signal_connect(clicked => \&_pass_turn_callback, $self);
-		push(@buttons, $pass_button);
 
 		my $scoreboard = GUI::GameInfoFrame::Scoreboard->new($self->{game});
 		$vbox_widgets->pack_start($scoreboard, 0, 0, 0);
@@ -92,8 +87,13 @@ sub draw_version {
 		$vbox_widgets->pack_start($bagcount, 0, 0, 0);
 		$self->{bagcount} = $bagcount;
 
+		my $pass_button = Gtk2::Button->new('Pass Turn');
+		$vbox_widgets->pack_start($pass_button, 0, 0, 0);
+		$pass_button->signal_connect(clicked => \&_pass_turn_callback, $self);
+		push(@buttons, $pass_button);
+
 		my $return_button = Gtk2::Button->new("Return Tiles\nto Rack");
-		$vbox_widgets->pack_start($return_button, 0, 0, 0);
+		$vbox_widgets->pack_end($return_button, 0, 0, 0);
 		$return_button->signal_connect(clicked => \&_return_tiles_callback, $self);
 		push(@buttons, $return_button);
 
