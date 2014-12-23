@@ -25,6 +25,7 @@ sub new {
 	$self->{dragging} = undef;
 	$self->{selected_blank_tile} = undef;
 	$self->{disabled} = 0;
+	$self->{replace_tiles} = 0;
 	
 	$self->set_center_scroll_region(0);
 	
@@ -60,6 +61,49 @@ sub set_disabled {
 	$self->{disabled} = $disabled;
 }
 
+sub replace_tiles {
+	my ($self) = @_;
+
+	if (!$self->{replace_tiles}) {
+		$self->return_tiles_to_rack();
+		$self->{replace_tiles} = 1;
+		$self->{tile_list} = [];
+	}
+	else {
+		$self->end_replace_tiles();
+	}
+}
+
+sub end_replace_tiles {
+	my ($self) = @_;
+
+	my @tiles = @{$self->{tile_list}};
+	if (scalar @tiles) {
+		# Commit the rack with the newly missing tiles
+		$self->{rack}->commit();
+
+		# Advance to the next turn, which fills the player's rack with new tiles
+		$self->next_turn();
+
+		# Put the tiles back into the bag
+		for my $tile (@tiles) {
+			$self->{game}->get_bag()->add($tile);
+		}
+		$self->{window}->refresh_gameinfo();
+
+		# Make an AI move.
+		$self->{window}->set_status(sprintf("You have replaced %d tiles. Making AI move...", scalar @tiles));
+		$self->{window}->make_ai_move();
+	}
+	else {
+		$self->{window}->set_status("Tile replacement canceled.");
+	}
+
+	$self->{window}->set_disabled(0);
+	$self->{replace_tiles} = 0;
+	$self->{tile_list} = [];
+}
+
 sub _handle_press {
 	my ($widget, $event, $canvas) = @_;
 
@@ -70,29 +114,44 @@ sub _handle_press {
 	return 1 unless $item;
 
 	my $group = $canvas->get_item_at($x, $y)->parent();
-	if ($group->isa('GUI::Tile') && !$canvas->{dragging}) {
+	if ($group->isa('GUI::Tile')) {
 		my $tile = $group;
 		my $space = $tile->parent();
-
-		if ($event->button() == 1) {
-			# Left click; initiate tile dragging
+		if ($canvas->{replace_tiles} && $event->button() == 1) {
+			# We are replacing tiles, so delete the clicked tiles and store them
 			if (!$tile->get_tile()->is_on_board()) {
-				$tile->reparent($canvas->root);
-				$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
-				$tile->draw($canvas->{side});
+				push(@{$canvas->{tile_list}}, $tile->get_tile());
+				$space->remove_tile();
+				$tile->destroy();
 
-				$canvas->{dragging} = {
-					tile => $tile,
-					source => $space,
-					draw_count => 0,
-				};
+				# If we've gotten the maximum number of tiles to replace (i.e., the
+				# number of tiles left in the bag), end tile replacement.
+				if (@{$canvas->{tile_list}} >= $canvas->{game}->bag_count()) {
+					$canvas->end_replace_tiles();
+				}
 			}
 		}
-		elsif ($event->button() == 3) {
-			# Right click. Check if it's a blank tile, and if so, allow user to set its letter.
-			if ($tile->get_tile()->is_blank() && !$tile->get_tile()->is_on_board()) {
-				$canvas->{window}->set_status("Type a letter to set for this blank tile.");
-				$canvas->{selected_blank_tile} = $tile;
+		elsif (!$canvas->{dragging}) {
+			if ($event->button() == 1) {
+				# Left click; initiate tile dragging
+				if (!$tile->get_tile()->is_on_board()) {
+					$tile->reparent($canvas->root);
+					$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
+					$tile->draw($canvas->{side});
+
+					$canvas->{dragging} = {
+						tile => $tile,
+						source => $space,
+						draw_count => 0,
+					};
+				}
+			}
+			elsif ($event->button() == 3) {
+				# Right click. Check if it's a blank tile, and if so, allow user to set its letter.
+				if ($tile->get_tile()->is_blank() && !$tile->get_tile()->is_on_board()) {
+					$canvas->{window}->set_status("Type a letter to set for this blank tile.");
+					$canvas->{selected_blank_tile} = $tile;
+				}
 			}
 		}
 	}

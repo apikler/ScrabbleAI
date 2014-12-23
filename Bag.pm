@@ -59,6 +59,16 @@ sub reset {
 	}
 }
 
+# Adds the given tile to the bag.
+sub add {
+	my ($self, $tile) = @_;
+
+	$tile->set_on_board(0);
+	$tile->clear_location();
+
+	push(@{$self->{tiles}}, $tile);
+}
+
 sub count {
 	my ($self) = @_;
 	

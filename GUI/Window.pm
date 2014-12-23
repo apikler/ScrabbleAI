@@ -92,6 +92,12 @@ sub draw_version {
 		$pass_button->signal_connect(clicked => \&_pass_turn_callback, $self);
 		push(@buttons, $pass_button);
 
+		my $replace_button = Gtk2::Button->new('Replace Tiles');
+		$vbox_widgets->pack_start($replace_button, 0, 0, 0);
+		$replace_button->signal_connect(clicked => \&_replace_tiles_callback, $self);
+		push(@buttons, $replace_button);
+		$self->{replace_button} = $replace_button;
+
 		my $return_button = Gtk2::Button->new("Return Tiles\nto Rack");
 		$vbox_widgets->pack_end($return_button, 0, 0, 0);
 		$return_button->signal_connect(clicked => \&_return_tiles_callback, $self);
@@ -286,6 +292,30 @@ sub _return_tiles_callback {
 	my ($button, $window) = @_;
 
 	$window->{canvas}->return_tiles_to_rack();
+}
+
+sub _replace_tiles_callback {
+	my ($button, $window) = @_;
+
+	my $bag_count = $window->{game}->bag_count();
+	if ($bag_count == 0) {
+		$window->set_status("Sorry, but you can't replace tiles when the bag is empty.");
+		return;
+	}
+
+	# Disable all the buttons except the Replace Tiles button and the Canvas.
+	$window->set_disabled(1);
+	$window->{replace_button}->set_sensitive(1);
+	$window->{canvas}->set_disabled(0);
+
+	if ($bag_count < 7) {
+		$window->set_status("Click on at most $bag_count tile(s) you want to replace, then click Replace Tiles again.");
+	}
+	else {
+		$window->set_status("Click on the tiles you want to replace, then click Replace Tiles again.");
+	}
+
+	$window->{canvas}->replace_tiles();
 }
 
 sub _pass_turn_callback {

@@ -67,6 +67,11 @@ sub get_player {
 	return $self->{player};
 }
 
+sub get_bag {
+	my ($self) = @_;
+	return $self->{bag};
+}
+
 sub get_aiplayer {
 	my ($self) = @_;
 
