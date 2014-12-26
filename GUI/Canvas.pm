@@ -319,7 +319,7 @@ sub draw {
 	# unnecessary redraws that slow the user interface to a crawl if we don't do this.
 	if ($self->{dragging}) {
 		$self->{dragging}->{draw_count}++;
-		return if $self->{dragging}->{draw_count} >= 2;
+		return if $self->{dragging}->{draw_count} >= 1;
 	}
 
 	my ($w, $h) = $self->get_dimensions();
