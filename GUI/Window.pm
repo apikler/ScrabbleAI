@@ -12,7 +12,7 @@ use base qw(Gtk2::Window);
 use Game;
 use GUI::Canvas;
 use GUI::GameInfoFrame::Scoreboard;
-use GUI::GameInfoFrame::BagCount;
+use GUI::GameInfoFrame::TileCount;
 use GUI::Key;
 
 use Data::Dumper;
@@ -84,9 +84,9 @@ sub draw_version {
 		$vbox_widgets->pack_start($scoreboard, 0, 0, 0);
 		$self->{scoreboard} = $scoreboard;
 
-		my $bagcount = GUI::GameInfoFrame::BagCount->new($self->{game});
-		$vbox_widgets->pack_start($bagcount, 0, 0, 0);
-		$self->{bagcount} = $bagcount;
+		my $tilecount = GUI::GameInfoFrame::TileCount->new($self->{game});
+		$vbox_widgets->pack_start($tilecount, 0, 0, 0);
+		$self->{tilecount} = $tilecount;
 
 		my $key = GUI::Key->new();
 		$vbox_widgets->pack_start($key, 0, 0, 0);
@@ -246,7 +246,7 @@ sub refresh_gameinfo {
 	my ($self) = @_;
 
 	$self->{scoreboard}->refresh();
-	$self->{bagcount}->refresh();
+	$self->{tilecount}->refresh();
 }
 
 # Displays the final score to the player and informs them the game is over.
