@@ -62,6 +62,8 @@ sub draw_version {
 	my $vbox_main = $self->{vbox_main};
 
 	if (lc($version) eq 'game') {
+		$self->resize(700, 700);
+
 		unless ($self->{game}) {
 			$self->{game} = Game->new();
 		}
@@ -138,13 +140,15 @@ sub draw_version {
 		$self->set_disabled(0);
 	}
 	elsif (lc($version) eq 'intro') {
+		$self->resize(450, 400);
+
 		my $hbox = Gtk2::HBox->new(1, 0);
-		$vbox_main->pack_start($hbox, 0, 0, 1);
+		$vbox_main->pack_start($hbox, 1, 1, 0);
 
 		my $frame = Gtk2::Frame->new("Difficulty");
 		$hbox->pack_start($frame, 1, 1, 0);
 
-		my $vbox_difficulty = Gtk2::VBox->new(0, 0);
+		my $vbox_difficulty = Gtk2::VBox->new();
 		$frame->add($vbox_difficulty);
 
 		my $previous_button;
@@ -174,7 +178,10 @@ sub draw_version {
 			});
 		}
 
-		my $button = Gtk2::Button->new('Start Game');
+		my $button = GUI::LargeImageButton->new(
+			Gtk2::Image->new_from_file('./GUI/images/start.png'),
+			"<span size=\"50000\">Start\nGame</span>",
+		);
 		$hbox->pack_end($button, 1, 1, 0);
 
 		push(@{$self->{widgets}}, $hbox);
