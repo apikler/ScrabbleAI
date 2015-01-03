@@ -13,9 +13,10 @@ sub refresh {
 	$self->set_label("Tile Counts");
 
 	my $aiplayer = $self->{game}->get_aiplayer();
-	$self->{label}->set_markup(sprintf("Bag: <b>%d</b> tiles\nLevel %d AI: <b>%d</b> tiles\nYou: <b>%d</b> tiles",
+	$self->{left_label}->set_markup(sprintf("Bag:\nLevel %d AI:\nYou:", $aiplayer->get_difficulty()));
+
+	$self->{right_label}->set_markup(sprintf("<b>%d</b> tiles\n<b>%d</b> tiles\n<b>%d</b> tiles",
 		$self->{game}->bag_count(),
-		$aiplayer->get_difficulty(),
 		$aiplayer->get_rack()->size(),
 		$self->{game}->get_player()->get_rack()->size(),
 	));

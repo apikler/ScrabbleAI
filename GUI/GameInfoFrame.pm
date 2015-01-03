@@ -18,9 +18,12 @@ sub new {
 	my $hbox = Gtk2::HBox->new(0, 0);
 	$self->add($hbox);
 
-	$self->{label} = Gtk2::Label->new();
-	$self->{label}->set_justify('left');
-	$hbox->pack_start($self->{label}, 0, 0, 4);
+	$self->{right_label} = Gtk2::Label->new();
+	$self->{right_label}->set_justify('left');
+	$self->{left_label} = Gtk2::Label->new();
+	$self->{left_label}->set_justify('left');
+	$hbox->pack_start($self->{left_label}, 0, 0, 4);
+	$hbox->pack_start($self->{right_label}, 0, 0, 4);
 
 	$self->show();
 	$self->refresh();

@@ -13,9 +13,10 @@ sub refresh {
 	$self->set_label("Scoreboard");
 
 	my $aiplayer = $self->{game}->get_aiplayer();
-	$self->{label}->set_markup(sprintf("You: <b>%d</b>\nLevel %d AI: <b>%d</b>",
+	$self->{left_label}->set_markup(sprintf("You:\nLevel %d AI:", $aiplayer->get_difficulty()));
+
+	$self->{right_label}->set_markup(sprintf("<b>%d</b>\n<b>%d</b>",
 		$self->{game}->get_player()->get_score(),
-		$aiplayer->get_difficulty(),
 		$aiplayer->get_score(),
 	));
 }
