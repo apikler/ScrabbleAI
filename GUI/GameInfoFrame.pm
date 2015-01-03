@@ -15,9 +15,12 @@ sub new {
 
 	$self->{game} = $game;
 
+	my $hbox = Gtk2::HBox->new(0, 0);
+	$self->add($hbox);
+
 	$self->{label} = Gtk2::Label->new();
 	$self->{label}->set_justify('left');
-	$self->add($self->{label});
+	$hbox->pack_start($self->{label}, 0, 0, 4);
 
 	$self->show();
 	$self->refresh();
