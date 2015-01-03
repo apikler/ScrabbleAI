@@ -14,6 +14,8 @@ use GUI::Space::RackSpace;
 
 use Data::Dumper;
 
+use constant NUM_SPACES => 9;
+
 sub new {
 	my ($class, $root, $rack, $coords) = @_;
 
@@ -29,7 +31,7 @@ sub new {
 	);
 
 	my @spaces;
-	foreach my $i (0..7) {
+	foreach my $i (0..(NUM_SPACES - 1)) {
 		my $gui_space = GUI::Space::RackSpace->new($self, $rack);
 		push(@spaces, $gui_space);
 	}
@@ -97,7 +99,7 @@ sub draw {
 	my ($self, $x, $y, $side, $padding) = @_;
 
 	my $board_side = 15*$side;
-	my $width = 8*$side + 2*$padding;
+	my $width = NUM_SPACES*$side + 2*$padding;
 	my $height = $side + 2*$padding;
 
 	my $x1 = $x + ($board_side - $width)/2;
