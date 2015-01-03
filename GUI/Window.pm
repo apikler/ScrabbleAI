@@ -77,7 +77,7 @@ sub draw_version {
 		my @buttons;
 		$hbox->pack_start($vbox_widgets, 0, 0, 0);
 		my $turn_button = Gtk2::Button->new("Make\nMove");
-		$vbox_widgets->pack_end($turn_button, 0, 0, 0);
+		$vbox_widgets->pack_end($turn_button, 1, 1, 0);
 		$turn_button->signal_connect(clicked => \&_make_move_callback, $self->{canvas});
 		push(@buttons, $turn_button);
 
@@ -103,8 +103,10 @@ sub draw_version {
 		push(@buttons, $replace_button);
 		$self->{replace_button} = $replace_button;
 
+		$vbox_widgets->pack_start(Gtk2::SeparatorMenuItem->new(), 0, 0, 0);
+
 		my $return_button = Gtk2::Button->new("Return Tiles\nto Rack");
-		$vbox_widgets->pack_end($return_button, 0, 0, 0);
+		$vbox_widgets->pack_end($return_button, 1, 1, 0);
 		$return_button->signal_connect(clicked => \&_return_tiles_callback, $self);
 		push(@buttons, $return_button);
 
