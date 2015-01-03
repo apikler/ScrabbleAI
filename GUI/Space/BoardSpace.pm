@@ -11,14 +11,6 @@ use Gnome2::Canvas;
 
 use GUI::Utils;
 
-my %colors = (
-	'3W' => GUI::Utils::get_gdk_color(210, 70, 50),
-	'2W' => GUI::Utils::get_gdk_color(220, 150, 150),
-	'3L' => GUI::Utils::get_gdk_color(50, 160, 205),
-	'2L' => GUI::Utils::get_gdk_color(150, 200, 215),
-	''  =>  GUI::Utils::get_gdk_color(195, 190, 175),
-);
-
 sub new {
 	my ($class, $root, $space) = @_;
 
@@ -30,7 +22,7 @@ sub new {
 		'Gnome2::Canvas::Rect',
 		outline_color => 'black',
 		width_pixels => 2,
-		fill_color_gdk => $colors{$space->get_bonus()},
+		fill_color_gdk => GUI::Utils::get_space_color($space->get_bonus()),
 	);
 
 	$self->{space} = $space;
