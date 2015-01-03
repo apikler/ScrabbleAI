@@ -25,6 +25,7 @@ sub new {
 	
 	$self->set_title('Scrabble');
 	$self->set_default_size(700, 700);
+	$self->set_icon_list(Gtk2::Gdk::Pixbuf->new_from_file('./GUI/images/s_tile.png'));
 	$self->signal_connect(destroy => sub { Gtk2->main_quit(); });
 
 	# An array of widgets that need to get destroyed when switching between the "game" and "intro"

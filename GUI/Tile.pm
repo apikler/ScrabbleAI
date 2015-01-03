@@ -101,7 +101,7 @@ sub draw {
 
 	if ($self->{value}) {
 		$self->{value}->set(
-			x => $side, y => $side,
+			x => $side - 1, y => $side,
 			'size-points' => 6*$scale,
 		);
 
