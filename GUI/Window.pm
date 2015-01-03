@@ -14,6 +14,7 @@ use GUI::Canvas;
 use GUI::GameInfoFrame::Scoreboard;
 use GUI::GameInfoFrame::TileCount;
 use GUI::Key;
+use GUI::LargeImageButton;
 
 use Data::Dumper;
 
@@ -76,7 +77,11 @@ sub draw_version {
 
 		my @buttons;
 		$hbox->pack_start($vbox_widgets, 0, 0, 0);
-		my $turn_button = Gtk2::Button->new("Make\nMove");
+
+		my $turn_button = GUI::LargeImageButton->new(
+			Gtk2::Image->new_from_stock('gtk-apply', 'dialog'),
+			"<span size=\"x-large\">Make\nMove</span>",
+		);
 		$vbox_widgets->pack_end($turn_button, 1, 1, 0);
 		$turn_button->signal_connect(clicked => \&_make_move_callback, $self->{canvas});
 		push(@buttons, $turn_button);
@@ -92,12 +97,16 @@ sub draw_version {
 		my $key = GUI::Key->new();
 		$vbox_widgets->pack_start($key, 0, 0, 0);
 
-		my $pass_button = Gtk2::Button->new('Pass Turn');
+		my $pass_button = Gtk2::Button->new(' Pass Turn');
+		$pass_button->set_image(Gtk2::Image->new_from_stock('gtk-media-forward', 'menu'));
+		$pass_button->set_size_request(-1, 35);
 		$vbox_widgets->pack_start($pass_button, 0, 0, 0);
 		$pass_button->signal_connect(clicked => \&_pass_turn_callback, $self);
 		push(@buttons, $pass_button);
 
-		my $replace_button = Gtk2::Button->new('Replace Tiles');
+		my $replace_button = Gtk2::Button->new(' Replace Tiles');
+		$replace_button->set_image(Gtk2::Image->new_from_stock('gtk-refresh', 'menu'));
+		$replace_button->set_size_request(-1, 35);
 		$vbox_widgets->pack_start($replace_button, 0, 0, 0);
 		$replace_button->signal_connect(clicked => \&_replace_tiles_callback, $self);
 		push(@buttons, $replace_button);
@@ -105,7 +114,10 @@ sub draw_version {
 
 		$vbox_widgets->pack_start(Gtk2::SeparatorMenuItem->new(), 0, 0, 0);
 
-		my $return_button = Gtk2::Button->new("Return Tiles\nto Rack");
+		my $return_button = GUI::LargeImageButton->new(
+			Gtk2::Image->new_from_stock('gtk-undo', 'dialog'),
+			"<span size=\"x-large\">Return Tiles\nto Rack</span>",
+		);
 		$vbox_widgets->pack_end($return_button, 1, 1, 0);
 		$return_button->signal_connect(clicked => \&_return_tiles_callback, $self);
 		push(@buttons, $return_button);
