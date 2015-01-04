@@ -398,10 +398,17 @@ sub _handle_key {
 	# If we're changing the letter on a blank tile, make sure the key is between A and Z.
 	my $keyval = $event->keyval();
 	my $tile = $canvas->{selected_blank_tile};
-	if ($tile && (($keyval >= 97 && $keyval <= 122) || ($keyval >= 65 && $keyval <= 90))) {
-		my $letter = lc(chr($keyval));
-		$tile->get_tile()->set_blank_letter($letter);
-		$canvas->{window}->set_status(sprintf("You have set the blank tile to %s.", uc($letter)));
+	if ($tile) {
+		if (($keyval >= 97 && $keyval <= 122) || ($keyval >= 65 && $keyval <= 90)) {
+			my $letter = lc(chr($keyval));
+			$tile->get_tile()->set_blank_letter($letter);
+			$canvas->{window}->set_status(sprintf("You have set the blank tile to %s.", uc($letter)));
+		}
+		else {
+			$tile->get_tile()->set_blank_letter('*');
+			$canvas->{window}->set_status("You have reset the blank tile.");
+		}
+
 		$tile->refresh_text();
 		delete $canvas->{selected_blank_tile};
 	}
