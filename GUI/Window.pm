@@ -18,6 +18,17 @@ use GUI::LargeImageButton;
 
 use Data::Dumper;
 
+# The HTML used in the 'about' popup
+my $ABOUT_MARKUP = <<'MARKUP';
+<b>Author:</b> Andrew Pikler, 2014
+
+<b>Other Credits:</b>
+AI based on a paper by Andrew W. Appel and Guy J. Jacobson, "The
+World's Fastest Scrabble Program", May 1988.
+
+Some icons used from flaticon.com.
+MARKUP
+
 sub new {
 	my ($class) = @_;
 	
@@ -216,8 +227,7 @@ sub draw_menu_bar {
 	
 	my $helpmenu = Gtk2::Menu->new();
 	my $about_item = Gtk2::ImageMenuItem->new_from_stock('gtk-about', undef);
-	# TODO: popup
-	$about_item->signal_connect(activate => sub {} );
+	$about_item->signal_connect(activate => \&_about_callback, $self);
 	$helpmenu->append($about_item);
 	
 	my $helpmenu_item = Gtk2::MenuItem->new('_Help');
@@ -423,6 +433,22 @@ sub _difficulty_callback {
 
 		$window->{difficulty} = $difficulty;
 	}
+}
+
+sub _about_callback {
+	my ($menuitem, $window) = @_;
+
+	my $dialog = Gtk2::Dialog->new("About", $window, 'destroy-with-parent',
+		'gtk-close' => 'close',
+	);
+
+	my $label = Gtk2::Label->new();
+	$label->set_markup($ABOUT_MARKUP);
+	$dialog->get_content_area()->add($label);
+
+	$dialog->show_all();
+	$dialog->run();
+	$dialog->destroy();
 }
 
 1;
