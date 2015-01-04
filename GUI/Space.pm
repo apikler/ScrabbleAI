@@ -22,7 +22,9 @@ sub draw {
 	$self->{rect}->show();
 
 	if ($self->{gui_tile}) {
-		$self->{gui_tile}->draw($side);
+		# Make the tile smaller by 1 pixel on each side so it will fit completely into
+		# the space.
+		$self->{gui_tile}->draw($side - 1);
 	}
 
 	$self->show();
