@@ -42,7 +42,6 @@ sub get_difficulty {
 sub get_move {
 	my ($self) = @_;
 	
-	warn "AI Rack: " . $self->{rack}->str() . "\n";
 	# Save the tiles currently held by the AI for use in save_move
 	my @tiles = @{$self->{rack}->get_tiles()};
 	$self->{all_tiles} = \@tiles;
@@ -61,10 +60,6 @@ sub get_move {
 	my @moves = sort {$b->{value} <=> $a->{value}} (@across_moves, @down_moves);	
 	
 	return undef unless scalar @moves;
-
-# 	for my $move (@moves) {
-# 		warn "Move worth " . $move->{value};
-# 	}
 
 	return $self->pick_move_from_difficulty(\@moves);
 }
@@ -118,7 +113,6 @@ sub get_moves {
 		if (@$prefix_tiles) {
 			my @prefix = map {$_->get()} @$prefix_tiles;
 			my $node = Node::get_node($root, @prefix);
-			# warn "prefix: ". Dumper(\@prefix);
 			if ($node) {
 				$self->extend_right(join('', @prefix), $node, $restrictions, $i, $j);
 			}
