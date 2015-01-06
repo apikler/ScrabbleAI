@@ -22,6 +22,7 @@ use Data::Dumper;
 use constant {
 	DEFAULT_INTRO_SIZE => [450, 400],
 	DEFAULT_GAME_SIZE => [700, 700],
+	DEFAULT_DIFFICULTY => 5,
 };
 
 # The HTML used in the 'about' popup
@@ -43,6 +44,9 @@ sub new {
 	
 	$self->{settings_manager} = GUI::SettingsManager->new();
 	$self->load_settings();
+
+	my $position = $self->{settings}{position};
+	$self->move(@$position) if $position;
 
 	my $intro_size = $self->{settings}{intro_size};
 	$self->set_default_size($intro_size->[0], $intro_size->[1]);
@@ -70,7 +74,6 @@ sub new {
 
 	$self->show_all();
 
-	$self->{difficulty} = 5; # Default difficulty
 	$self->draw_version('intro');
 
 	$self->signal_connect(configure_event => \&_resize_callback);
@@ -84,11 +87,17 @@ sub load_settings {
 	my %settings;
 	my $saved = $self->{settings_manager};
 
+	# Window position
+	$settings{position} = $saved->get('position');
+
 	# Size of the intro window
 	$settings{intro_size} = $saved->get('intro_size', DEFAULT_INTRO_SIZE);
 
 	# Size of the main game window
 	$settings{game_size} = $saved->get('game_size', DEFAULT_GAME_SIZE);
+
+	# Difficulty
+	$settings{difficulty} = $saved->get('difficulty', DEFAULT_DIFFICULTY);
 
 	$self->{settings} = \%settings;
 }
@@ -109,7 +118,7 @@ sub draw_version {
 		unless ($self->{game}) {
 			$self->{game} = Game->new();
 		}
-		$self->{game}->reset($self->{difficulty});
+		$self->{game}->reset($self->{settings}{difficulty});
 
 		my $vbox_widgets = Gtk2::VBox->new(0, 6);
 		my $hbox = Gtk2::HBox->new(0, 6);
@@ -212,7 +221,7 @@ sub draw_version {
 			$vbox_difficulty->pack_end($button, 1, 0, 0);
 			$previous_button = $button;
 
-			if ($difficulty == $self->{difficulty}) {
+			if ($difficulty == $self->{settings}{difficulty}) {
 				$button->set_active(1);
 			}
 
@@ -465,7 +474,7 @@ sub _difficulty_callback {
 		my $window = $data->{window};
 		my $difficulty = $data->{difficulty};
 
-		$window->{difficulty} = $difficulty;
+		$window->{settings}{difficulty} = $difficulty;
 	}
 }
 
@@ -491,6 +500,7 @@ sub _resize_callback {
 	return unless defined $window->{version};
 
 	$window->{settings}{sprintf('%s_size', $window->{version})} = [$window->get_size()];
+	$window->{settings}{position} = [$window->get_position()];
 
 	return 0;
 }
