@@ -23,6 +23,7 @@ use constant {
 	DEFAULT_INTRO_SIZE => [450, 400],
 	DEFAULT_GAME_SIZE => [700, 700],
 	DEFAULT_DIFFICULTY => 5,
+	MINIMUM_WIDTH => 400,
 };
 
 # The HTML used in the 'about' popup
@@ -42,6 +43,8 @@ sub new {
 	my $self = $class->SUPER::new();
 	bless($self, $class);
 	
+	$self->set_size_request(MINIMUM_WIDTH, -1);
+
 	$self->{settings_manager} = GUI::SettingsManager->new();
 	$self->load_settings();
 
