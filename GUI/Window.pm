@@ -15,8 +15,14 @@ use GUI::GameInfoFrame::Scoreboard;
 use GUI::GameInfoFrame::TileCount;
 use GUI::Key;
 use GUI::LargeImageButton;
+use GUI::SettingsManager;
 
 use Data::Dumper;
+
+use constant {
+	DEFAULT_INTRO_SIZE => [450, 400],
+	DEFAULT_GAME_SIZE => [700, 700],
+};
 
 # The HTML used in the 'about' popup
 my $ABOUT_MARKUP = <<'MARKUP';
@@ -35,10 +41,15 @@ sub new {
 	my $self = $class->SUPER::new();
 	bless($self, $class);
 	
+	$self->{settings_manager} = GUI::SettingsManager->new();
+	$self->load_settings();
+
+	my $intro_size = $self->{settings}{intro_size};
+	$self->set_default_size($intro_size->[0], $intro_size->[1]);
+
 	$self->set_title('Scrabble');
-	$self->set_default_size(700, 700);
 	$self->set_icon_list(Gtk2::Gdk::Pixbuf->new_from_file('./GUI/images/s_tile.png'));
-	$self->signal_connect(destroy => sub { Gtk2->main_quit(); });
+	$self->signal_connect(destroy => \&_destroy_callback);
 
 	# An array of widgets that need to get destroyed when switching between the "game" and "intro"
 	# versions of the window.
@@ -62,7 +73,24 @@ sub new {
 	$self->{difficulty} = 5; # Default difficulty
 	$self->draw_version('intro');
 
+	$self->signal_connect(configure_event => \&_resize_callback);
+
 	return $self;
+}
+
+sub load_settings {
+	my ($self) = @_;
+
+	my %settings;
+	my $saved = $self->{settings_manager};
+
+	# Size of the intro window
+	$settings{intro_size} = $saved->get('intro_size', DEFAULT_INTRO_SIZE);
+
+	# Size of the main game window
+	$settings{game_size} = $saved->get('game_size', DEFAULT_GAME_SIZE);
+
+	$self->{settings} = \%settings;
 }
 
 # Draws the indicated version (screen) of the window. $version must be "game" or "intro".
@@ -73,7 +101,10 @@ sub draw_version {
 	my $vbox_main = $self->{vbox_main};
 
 	if (lc($version) eq 'game') {
-		$self->resize(700, 700);
+		$self->{version} = 'game';
+
+		my $size = $self->{settings}->{game_size};
+		$self->resize($size->[0], $size->[1]);
 
 		unless ($self->{game}) {
 			$self->{game} = Game->new();
@@ -150,7 +181,10 @@ sub draw_version {
 		$self->set_disabled(0);
 	}
 	elsif (lc($version) eq 'intro') {
-		$self->resize(450, 400);
+		$self->{version} = 'intro';
+
+		my $size = $self->{settings}->{intro_size};
+		$self->resize($size->[0], $size->[1]);
 
 		my $hbox = Gtk2::HBox->new(1, 0);
 		$vbox_main->pack_start($hbox, 1, 1, 0);
@@ -449,6 +483,25 @@ sub _about_callback {
 	$dialog->show_all();
 	$dialog->run();
 	$dialog->destroy();
+}
+
+sub _resize_callback {
+	my ($window) = @_;
+
+	return unless defined $window->{version};
+
+	$window->{settings}{sprintf('%s_size', $window->{version})} = [$window->get_size()];
+
+	return 0;
+}
+
+sub _destroy_callback {
+	my ($window) = @_;
+
+	$window->{settings_manager}->set($window->{settings});
+	$window->{settings_manager}->save();
+
+	Gtk2->main_quit();
 }
 
 1;
