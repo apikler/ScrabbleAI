@@ -1,6 +1,9 @@
 use strict;
 use warnings;
 
+use FindBin;
+use lib $FindBin::Bin;
+
 use Gtk2 '-init';
 
 use GUI::Window;

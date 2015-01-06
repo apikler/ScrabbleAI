@@ -3,6 +3,8 @@ package Utils;
 use strict;
 use warnings;
 
+use FindBin;
+
 # Given an arrayref of coordinates '(i,j)' and a position 0 or 1,
 # returns an array of only the coordinates of that position.
 sub coord_position {
@@ -51,6 +53,12 @@ sub same_elements {
 	}
 
 	return 1;
+}
+
+sub abs_path {
+	my ($path) = @_;
+
+	return $FindBin::Bin . "/$path";
 }
 
 1;

@@ -6,15 +6,21 @@ use warnings;
 use Data::Dumper;
 use Storable;
 
+use Utils;
 use Node;
+
+use constant {
+	OSPD => Utils::abs_path('ospd.txt'),
+	ENABLE => Utils::abs_path('enable.txt'),
+	LIBRARY => Utils::abs_path('library'),
+};
 
 sub new {
 	my ($class) = @_;
 	
 	my $self = bless({
-		shortwords => hashref_from_wordlist('ospd.txt'),
-		longwords => hashref_from_wordlist('enable.txt'),
-		testwords => hashref_from_wordlist('test.txt'),
+		shortwords => hashref_from_wordlist(OSPD),
+		longwords => hashref_from_wordlist(ENABLE),
 	}, $class);
 	
 	# Generate tree from the shortwords list plus all the words in longwords that
@@ -24,13 +30,13 @@ sub new {
 		push (@treebase, $word) if length($word) > 8;
 	}
 	
-	if (-e 'library') {
-		$self->{wordtree} = retrieve('library');
+	if (-e LIBRARY) {
+		$self->{wordtree} = retrieve(LIBRARY);
 	}
 	else {
 		$self->{wordtree} = build_tree(\@treebase);
 		
-		store($self->{wordtree}, 'library');
+		store($self->{wordtree}, LIBRARY);
 	}
 	
 	$self->{treewords} = {};
