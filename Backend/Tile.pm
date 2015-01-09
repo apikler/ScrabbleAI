@@ -1,8 +1,31 @@
+##########################################################################
+# Backend::Tile
+# Representation of a tile, with a letter and a point value.
+# Tiles can be in one of three places: in the Bag, in a player's Rack, or
+# on the Board.
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package Backend::Tile;
 
 use strict;
 use warnings;
 
+# Point values of each letter
 my %values = (
 	A => 1,
 	B => 3,
@@ -33,11 +56,11 @@ my %values = (
 	'*' => 0,
 );
 
+# Creates a new letter with the given type: a lower-case letter, or '*' for a blank tile.
 sub new {
 	my ($class, $type) = @_;
 	
 	my $self = bless({
-		# The type is the kind of tile this is; a lower-case letter, or * if it's a blank.
 		type => lc($type),
 		value => $values{uc($type)},
 		# The letter is the actual letter this tile represents on the board; for non-blank tiles
@@ -50,6 +73,7 @@ sub new {
 	return $self;
 }
 
+# Returns the point value of this tile
 sub get_value {
 	my ($self) = @_;
 	
@@ -57,12 +81,18 @@ sub get_value {
 }
 
 # Returns the letter of this tile in lower case.
+# See NOTE below under $self->get_type().
 sub get {
 	my ($self) = @_;
 	
 	return $self->{letter};
 }
 
+# Returns the type of this Tile.
+# NOTE: The "letter" and "type" of a Tile are always the same, except in the
+# case of a blank tile. A blank will start out with '*' as both its letter and
+# type, but once it is on the board the letter attribute will take on the value
+# of the actual letter it represents.
 sub get_type {
 	my ($self) = @_;
 

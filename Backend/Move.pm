@@ -1,3 +1,24 @@
+##########################################################################
+# Backend::Move
+# An internal representation of a possible move - i.e., a combination of
+# tiles to be placed in specific locations on the board.
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package Backend::Move;
 
 use strict;
@@ -35,6 +56,7 @@ sub remove {
 	}
 }
 
+# Adds a tile to be placed at coordinates ($i, $j) to this move.
 sub add {
 	my ($self, $i, $j, $tile) = @_;
 
@@ -92,6 +114,8 @@ sub set_word_reverse {
 	}
 }
 
+# Returns the total score of this move. Also sets the $self->{value} attribute to
+# this amount so that it can be accessed without repeatedly calling this function.
 sub evaluate {
 	my ($self) = @_;
 
@@ -131,12 +155,16 @@ sub evaluate {
 	return $total_score;
 }
 
+# Returns a hashref of the tiles in this move in this format:
+# "i,j" => Tile
+# where i and j are the coordinates where the tile is to be placed.
 sub get_tiles {
 	my ($self) = @_;
 	
 	return $self->{tiles};
 }
 
+# Returns the number of tiles to be placed in this move.
 sub length {
 	my ($self) = @_;
 
@@ -210,6 +238,8 @@ sub straight_line {
 	return $straight;
 }
 
+# Returns 1 if the move is legal; 0 otherwise. (This does not evaluate the
+# words being played for validity.)
 sub legal {
 	my ($self) = @_;
 
@@ -365,6 +395,7 @@ sub contains_unset_blank {
 	return 0;
 }
 
+# Returns a string representation of this Move.
 sub str {
 	my ($self) = @_;
 

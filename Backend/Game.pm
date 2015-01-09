@@ -1,3 +1,24 @@
+##########################################################################
+# Backend::Game
+# A representation of the game state. Ties together many of the other
+# Backend elements.
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package Backend::Game;
 
 use strict;
@@ -28,6 +49,8 @@ sub new {
 	return $self;
 }
 
+# Resets the game to a starting state.
+# 	$difficulty: The difficulty passed to the AI player (see Player::AIPlayer::set_difficulty)
 sub reset {
 	my ($self, $difficulty) = @_;
 
@@ -41,6 +64,7 @@ sub reset {
 	$self->fill_racks();
 }
 
+# Proceeds to the next turn, filling both players' racks.
 sub next_turn {
 	my ($self) = @_;
 
@@ -49,6 +73,7 @@ sub next_turn {
 	$self->{turn}++;
 }
 
+# Fills both players' Racks to a full hand of Tiles.
 sub fill_racks {
 	my ($self) = @_;
 
@@ -56,28 +81,33 @@ sub fill_racks {
 	$self->{aiplayer}->draw_hand($self->{bag});
 }
 
+# Returns the Board being used by this Game
 sub get_board {
 	my ($self) = @_;
 	return $self->{board};
 }
 
+# Returns the human Player being used by this Game
 sub get_player {
 	my ($self) = @_;
 
 	return $self->{player};
 }
 
+# Returns the Bag being used in this Game
 sub get_bag {
 	my ($self) = @_;
 	return $self->{bag};
 }
 
+# Returns the AI Player being used by this Game
 sub get_aiplayer {
 	my ($self) = @_;
 
 	return $self->{aiplayer};
 }
 
+# Returns the number of Tiles remaining in the Bag.
 sub bag_count {
 	my ($self) = @_;
 	return $self->{bag}->count();

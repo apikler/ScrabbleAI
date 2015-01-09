@@ -1,3 +1,29 @@
+##########################################################################
+# Backend::Board
+# An internal representation of the game board.
+#
+# The coordinates on the board are as follows: The upper left square has
+# coordinates 0,0 and coordinates increase down and to the right. The
+# coordinates are often referred to as $i and $j, respectively, with $i
+# going horizontally and $j going vertically. The coordinate
+# 4 spaces to the right and 2 down from 0,0 is at 4,2.
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package Backend::Board;
 
 use strict;
@@ -17,9 +43,12 @@ sub new {
 	return $self;
 }
 
+# Resets the board to its starting state. Creates blank Spaces with appropriate
+# bonuses.
 sub reset {
 	my ($self) = @_;
 
+	# The bonuses and their locations on the board
 	my %bonuses_by_type = (
 		'3W' => [
 			'0,0',
@@ -113,12 +142,20 @@ sub reset {
 	$self->{transposed} = 0;
 }
 
+# Returns the space at the given coordinates
 sub get_space {
 	my ($self, $i, $j) = @_;
 	
 	return $self->{spaces}{"$i,$j"};
 }
 
+# Takes a function and iterates through all the Spaces on the Board, calling
+# that function for each space with the coordinates of the space as arguments.
+# The function should look like this:
+# sub {
+#	my ($i, $j) = @_;
+#   ...
+# }
 sub foreach_space {
 	my ($self, $sub) = @_;
 	
@@ -129,7 +166,7 @@ sub foreach_space {
 	}
 }
 
-# Switches the board's i and j coordinates. Across words become down words,
+# Switches the Board's i and j coordinates. Across words become down words,
 # and vice versa.
 sub transpose {
 	my ($self) = @_;
@@ -144,6 +181,8 @@ sub transpose {
 	$self->{transposed} = $self->{transposed} ? 0 : 1;
 }
 
+# Returns 1 if the Board is currently transposed (see $self->transpose())
+# or 0 if it is not.
 sub is_transposed {
 	my ($self) = @_;
 	
@@ -228,6 +267,7 @@ sub get_directions {
 	];
 }
 
+# Returns the number of spaces on each side of the (square) board
 sub get_width {
 	my ($self) = @_;
 	
@@ -265,6 +305,7 @@ sub print_spaces {
 	});
 }
 
+# Commits the given Move to the board, adding the Tiles to the corresponding coordinates.
 sub make_move {
 	my ($self, $move) = @_;
 	

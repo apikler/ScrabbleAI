@@ -1,3 +1,27 @@
+##########################################################################
+# Backend::Player::AIPlayer
+# Handles the automatic move generation.
+# To further understand how move generation works, especially left_part()
+# and extend_right(), please refer to:
+# "The World's Fastest Scrabble Program", by Andrew W. Appel and Guy J.
+# Jacobson, published May 1988.
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package Backend::Player::AIPlayer;
 use base qw(Backend::Player);
 
@@ -28,6 +52,8 @@ sub num_difficulties {
 	return 10;
 }
 
+# Sets the difficulty of this player. Valid difficulties are integer values
+# from 1 to 10, with 10 being the hardest.
 sub set_difficulty {
 	my ($self, $difficulty) = @_;
 
@@ -39,6 +65,9 @@ sub get_difficulty {
 	return $self->{difficulty};
 }
 
+# Given the current board state, returns the move the AI Player wants to make.
+# This works by generating and evaluating all the possible moves, and then picking
+# one that is appropriate for the difficulty that has been set.
 sub get_move {
 	my ($self) = @_;
 	
@@ -96,7 +125,10 @@ sub pick_move_from_difficulty {
 	return $move_choices[0];
 }
 
-# Returns an arrayref of all the legal moves the AI can make, sorted in order of decreasing value
+# Returns an arrayref of all the legal horizontal moves the AI can make,
+# sorted in order of decreasing value. As this only gets horizontal moves,
+# to get all the possible moves the board must be transposed and then this
+# must be called again.
 sub get_moves {
 	my ($self) = @_;
 	
@@ -136,24 +168,32 @@ sub get_moves {
 	}
 }
 
+# Recursively generates playable words horizontally, anchored at the coordinates $i, $j.
+#	$partial_word: The letters that we've tried placing to the left of this tile to form
+#		the beginning of the word (NOTE: these are not tiles already on the board; they are
+#		just various possibilities we are trying)
+#	$node: The current Node we are at in the word tree. This will have children that correspond
+#		to the next letter we can play to the right
+#	$limit: An integer corresponding to the amount of room to the left of this letter before we hit
+#		another anchor
+#	$restrictions: An arrayref of allowed letters at this anchor, based on the vertically adjacent
+#		tiles. Can be empty if all letters are allowed.
 sub left_part {
 	my ($self, $partial_word, $node, $limit, $restrictions, $i, $j) = @_;
-	# print "left part limit: $limit, partial word: $partial_word \n";
-	# print "rack: " . $self->{rack}->str() ."\n";
 	
+	# Given this left part, attempt to extend the word to the right from this anchor.
 	$self->extend_right($partial_word, $node, $restrictions, $i, $j);
+
 	if ($limit > 0) {
 		for my $letter (@{$node->get_edges()}) {
-			#print "letter: $letter \n";
-			#print "rack: " . $self->{rack}->str() ."\n";
 			my $tile;
+			# Attempt to place a non-blank tile first; otherwise resort to using the blank
 			if ($self->{rack}->contains($letter)) {
 				$tile = $self->{rack}->remove($letter);
 			}
 			elsif ($self->{rack}->contains('*')) {
 				$tile = $self->{rack}->remove('*');
 			}
-			# print "rack after: " . $self->{rack}->str() ."\n";
 			
 			if ($tile) {
 				$self->left_part(
@@ -170,6 +210,8 @@ sub left_part {
 	}
 }
 
+# This is called at various times during move generation when a valid move is found. It creates
+# a new Move that is then saved for use in $self->get_moves().
 sub save_move {
 	my ($self, $word, $i, $j) = @_;
 	
@@ -179,14 +221,25 @@ sub save_move {
 	push(@{$self->{moves}}, $move);
 }
 
+# Attempts to extend potential words to the right from the space at $i, $j.
+#	$partial_word: The part of the potential word we are trying that lies to the left, from left_part()
+#	$node: The current Node we are at in the word tree
+#	$restrictions: An arrayref of allowed letters at this anchor, based on the vertically adjacent
+#		tiles. Can be empty if all letters are allowed.
 sub extend_right {
 	my ($self, $partial_word, $node, $restrictions, $i, $j) = @_;
 
 	my $board = $self->{board};
-	return unless $board->in_bounds($i, $j);
+	return unless $board->in_bounds($i, $j);	# We have wandered off the edge of the board.
 	
 	my $board_tile = $board->get_space($i, $j)->get_tile();
 	unless ($board_tile) {
+		# If there's no tile on the board here ($i, $J), then try and see, for each letter of
+		# the rack, if there's a corresponding child node of $node. If so, continue extending
+		# right using that child node.
+		#
+		# If we've reached and end point in the tree, save the move.
+
 		for my $letter (@{$node->get_edges()}) {
 			my $tile;
 			if ($self->{rack}->contains($letter)) {
@@ -210,6 +263,10 @@ sub extend_right {
 		}
 	}
 	else {
+		# If we have a tile on the board at ($i, $j), see if that letter is a child of this node.
+		# If so, we can keep extending to the right from it; if it's also an endpoint, we have a
+		# valid word that we can save.
+
 		my $letter = $board_tile->get();
 		my $child = $node->get_child($letter);
 		if ($child) {

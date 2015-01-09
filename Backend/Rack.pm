@@ -1,3 +1,24 @@
+##########################################################################
+# Backend::Rack
+# A representation of a player's rack. Can contain any number of tiles
+# (although in practice this is limited by the game to seven).
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package Backend::Rack;
 
 use strict;
@@ -15,13 +36,14 @@ sub new {
 	return $self;
 }
 
+# Adds the given Tile to the Rack.
 sub add_tile {
 	my ($self, $tile) = @_;
 	
 	push(@{$self->{tiles}}, $tile);
 }
 
-# Returns an arrayref of the Tiles in this rack.
+# Returns an arrayref of the Tiles in this Rack.
 sub get_tiles {
 	my ($self) = @_;
 
@@ -29,6 +51,7 @@ sub get_tiles {
 	return \@tiles;
 }
 
+# Adds all the tiles in the given arrayref to the Rack.
 sub set_tiles {
 	my ($self, $tiles) = @_;
 
@@ -36,6 +59,7 @@ sub set_tiles {
 	$self->{tiles} = \@tiles_copy;
 }
 
+# Empties the Rack of tiles.
 sub empty {
 	my ($self) = @_;
 	$self->set_tiles([]);
@@ -52,6 +76,8 @@ sub set {
 	}
 }
 
+# Returns 1 if this Rack contains at least one Tile that represents the given
+# letter (character). '*' can be used to check for blank tiles.
 sub contains {
 	my ($self, $letter) = @_;
 	
@@ -97,6 +123,7 @@ sub value {
 	return $total;
 }
 
+# Returns a string representation of this Rack
 sub str {
 	my ($self) = @_;
 	

@@ -1,3 +1,23 @@
+##########################################################################
+# Backend::Bag
+# An internal representation of the bag of letters that players draw from.
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package Backend::Bag;
 
 use strict;
@@ -5,6 +25,7 @@ use warnings;
 
 use Backend::Tile;
 
+# The tiles that appear in the bag and the corresponding tile counts
 my %amounts = (
 	A => 9,
 	B => 2,
@@ -32,7 +53,7 @@ my %amounts = (
 	X => 1,
 	Y => 2,
 	Z => 1,
-	'*' => 2,
+	'*' => 2, # blank tiles
 );
 
 sub new {
@@ -47,6 +68,7 @@ sub new {
 	return $self;
 }
 
+# Resets the Bag to its starting state - i.e., refills the Bag with new tiles
 sub reset {
 	my ($self) = @_;
 	
@@ -59,7 +81,7 @@ sub reset {
 	}
 }
 
-# Adds the given tile to the bag.
+# Adds the given tile to the Bag.
 sub add {
 	my ($self, $tile) = @_;
 
@@ -69,13 +91,14 @@ sub add {
 	push(@{$self->{tiles}}, $tile);
 }
 
+# Returns the number of tiles in the Bag.
 sub count {
 	my ($self) = @_;
 	
 	return scalar(@{$self->{tiles}});
 }
 
-# Remove and return a Tile from the Bag. Returns undef if the bag is empty.
+# Remove and return a Tile from the Bag. Returns undef if the Bag is empty.
 sub draw {
 	my ($self) = @_;
 	
