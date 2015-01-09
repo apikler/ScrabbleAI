@@ -49,30 +49,39 @@ use constant {
 sub new {
 	my ($class) = @_;
 	
-	my $self = bless({
-		shortwords => hashref_from_wordlist(OSPD),
-		longwords => hashref_from_wordlist(ENABLE),
-	}, $class);
-	
-	# Generate tree from the shortwords list plus all the words in longwords that
-	# are more than 8 characters.
-	my @treebase = keys %{$self->{shortwords}};
-	for my $word ( keys %{$self->{longwords}} ) {
-		push (@treebase, $word) if length($word) > 8;
-	}
-	
+	my $self = bless({}, $class);
+
 	if (-e LIBRARY) {
-		$self->{wordtree} = retrieve(LIBRARY);
+		my $savefile = retrieve(LIBRARY);
+
+		$self->{shortwords} = $savefile->{shortwords};
+		$self->{longwords} = $savefile->{longwords};
+		$self->{treewords} = $savefile->{treewords};
+		$self->{wordtree} = $savefile->{wordtree};
 	}
 	else {
+		$self->{shortwords} = hashref_from_wordlist(OSPD);
+		$self->{longwords} = hashref_from_wordlist(ENABLE);
+
+		# Generate tree from the shortwords list plus all the words in longwords that
+		# are more than 8 characters.
+		my @treebase = keys %{$self->{shortwords}};
+		for my $word ( keys %{$self->{longwords}} ) {
+			push (@treebase, $word) if length($word) > 8;
+		}
+
 		$self->{wordtree} = build_tree(\@treebase);
+		$self->{treewords} = {};
+		for my $word (@treebase) {
+			$self->{treewords}{$word} = 1;
+		}
 		
-		store($self->{wordtree}, LIBRARY);
-	}
-	
-	$self->{treewords} = {};
-	for my $word (@treebase) {
-		$self->{treewords}{$word} = 1;
+		store({
+			wordtree => $self->{wordtree},
+			treewords => $self->{treewords},
+			longwords => $self->{longwords},
+			shortwords => $self->{shortwords},
+		}, LIBRARY);
 	}
 	
 	return $self;
