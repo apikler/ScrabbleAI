@@ -9,8 +9,8 @@ use Glib;
 
 use base qw(Gtk2::Window);
 
-use Game;
-use Utils;
+use Backend::Game;
+use Backend::Utils;
 use GUI::Canvas;
 use GUI::GameInfoFrame::Scoreboard;
 use GUI::GameInfoFrame::TileCount;
@@ -56,7 +56,7 @@ sub new {
 	$self->set_default_size($intro_size->[0], $intro_size->[1]);
 
 	$self->set_title('Scrabble');
-	$self->set_icon_list(Gtk2::Gdk::Pixbuf->new_from_file(Utils::abs_path('GUI/images/s_tile.png')));
+	$self->set_icon_list(Gtk2::Gdk::Pixbuf->new_from_file(Backend::Utils::abs_path('GUI/images/s_tile.png')));
 	$self->signal_connect(destroy => \&_destroy_callback);
 
 	# An array of widgets that need to get destroyed when switching between the "game" and "intro"
@@ -120,7 +120,7 @@ sub draw_version {
 		$self->resize($size->[0], $size->[1]);
 
 		unless ($self->{game}) {
-			$self->{game} = Game->new();
+			$self->{game} = Backend::Game->new();
 		}
 		$self->{game}->reset($self->{settings}{difficulty});
 
@@ -236,7 +236,7 @@ sub draw_version {
 		}
 
 		my $button = GUI::LargeImageButton->new(
-			Gtk2::Image->new_from_file(Utils::abs_path('GUI/images/start.png')),
+			Gtk2::Image->new_from_file(Backend::Utils::abs_path('GUI/images/start.png')),
 			"<span size=\"50000\">Start\nGame</span>",
 		);
 		$hbox->pack_end($button, 1, 1, 0);

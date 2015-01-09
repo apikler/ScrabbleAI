@@ -7,7 +7,7 @@ use Gtk2 '-init';
 
 use base qw(Gnome2::Canvas);
 
-use Move;
+use Backend::Move;
 use GUI::Board;
 use GUI::Rack;
 
@@ -256,7 +256,7 @@ sub next_turn {
 	my ($self) = @_;
 
 	$self->{game}->next_turn();
-	$self->{move} = Move->new($self->{game}->get_board());
+	$self->{move} = Backend::Move->new($self->{game}->get_board());
 
 	if ($self->{rack}) {
 		$self->{rack}->refresh();

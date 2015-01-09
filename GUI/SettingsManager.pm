@@ -3,12 +3,12 @@ package GUI::SettingsManager;
 use strict;
 use warnings;
 
-use Utils;
+use Backend::Utils;
 
 use Data::Dumper;
 use Storable;
 
-use constant FILENAME => Utils::abs_path('GUI/settings');
+use constant FILENAME => Backend::Utils::abs_path('GUI/settings');
 
 sub new {
 	my ($class) = @_;
