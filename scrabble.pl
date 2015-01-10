@@ -23,13 +23,13 @@ use strict;
 use warnings;
 
 use FindBin;
-use lib $FindBin::Bin;
+use lib $FindBin::Bin . '/lib';
 
 use Gtk2 '-init';
 
-use GUI::Window;
+use ScrabbleAI::GUI::Window;
 
-my $window = GUI::Window->new();
+my $window = ScrabbleAI::GUI::Window->new();
 
 Gtk2->main();
 
