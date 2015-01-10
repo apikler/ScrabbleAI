@@ -1,3 +1,23 @@
+##########################################################################
+# GUI::Board
+# Canvas element that displays the game board
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package GUI::Board;
 
 use strict;
@@ -30,6 +50,11 @@ sub new {
 	return $self;
 }
 
+# Iterates through each GUI::Space on the board, and calls $sub with the following
+# arguments for each GUI::Space:
+#	$space - the GUI::Space
+#	$i - i (horizontal) coordinate, from 0 to 14
+#	$j - j (vertical) coordinate
 sub foreach_space {
 	my ($self, $sub) = @_;
 
@@ -40,6 +65,7 @@ sub foreach_space {
 	});
 }
 
+# Returns the GUI::Space at the given coordinates
 sub get_space {
 	my ($self, $i, $j) = @_;
 
@@ -72,6 +98,7 @@ sub move_to_board {
 	});
 }
 
+# Refreshes the image of the board drawn on the GUI::Canvas
 sub draw {
 	my ($self, $side) = @_;
 	

@@ -1,3 +1,25 @@
+##########################################################################
+# GUI::Window
+# The main window. Can have two modes, 'intro' or 'game', corresponding
+# to the screen where the user selects the difficulty and to the main
+# game screen, respectively.
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package GUI::Window;
 
 use strict;
@@ -29,7 +51,7 @@ use constant {
 
 # The HTML used in the 'about' popup
 my $ABOUT_MARKUP = <<'MARKUP';
-<b>Author:</b> Andrew Pikler, 2014
+Copyright (C) 2015 Andrew Pikler
 
 <b>Other Credits:</b>
 AI based on a paper by Andrew W. Appel and Guy J. Jacobson, "The
@@ -55,7 +77,7 @@ sub new {
 	my $intro_size = $self->{settings}{intro_size};
 	$self->set_default_size($intro_size->[0], $intro_size->[1]);
 
-	$self->set_title('Scrabble');
+	$self->set_title('ScrabbleAI');
 	$self->set_icon_list(Gtk2::Gdk::Pixbuf->new_from_file(Backend::Utils::abs_path('GUI/images/s_tile.png')));
 	$self->signal_connect(destroy => \&_destroy_callback);
 
@@ -85,6 +107,8 @@ sub new {
 	return $self;
 }
 
+# Loads window position, window size, and difficulty settings that have
+# been saved by the GUI::SettingsManager
 sub load_settings {
 	my ($self) = @_;
 
@@ -131,9 +155,11 @@ sub draw_version {
 		$self->{canvas} = GUI::Canvas->new($self, $self->{game});
 		$hbox->pack_start($self->{canvas}, 1, 1, 0);
 
+		# Left Panel ---------------------------------------------------
 		my @buttons;
 		$hbox->pack_start($vbox_widgets, 0, 0, 0);
 
+		# "Make Move" button
 		my $turn_button = GUI::LargeImageButton->new(
 			Gtk2::Image->new_from_stock('gtk-apply', 'dialog'),
 			"<span size=\"x-large\">Make\nMove</span>",
@@ -179,6 +205,7 @@ sub draw_version {
 		push(@buttons, $return_button);
 
 		$self->signal_connect(key_press_event => \&_handle_key, $self->{canvas});
+		# End Left Panel ---------------------------------------------------
 
 		my $statusbar = Gtk2::Statusbar->new();
 		$statusbar->set_has_resize_grip(1);
@@ -249,6 +276,7 @@ sub draw_version {
 	$self->show_all();
 }
 
+# Draws the menus at the top of the window
 sub draw_menu_bar {
 	my ($self, $box) = @_;
 	
@@ -294,6 +322,8 @@ sub set_disabled {
 	}
 }
 
+# Destroys the widgets referenced in $self->{widgets}. Called when switching between the intro
+# and game screens
 sub destroy {
 	my ($self) = @_;
 
@@ -312,6 +342,9 @@ sub set_status {
 	$self->{statusbar}->push($contextid, $text);
 }
 
+# So as to not freeze widget elements as the AI is computing its next move, there is a timer running
+# that checks every second if an AI move needs to be made. Calling this function sets a flag such
+# that the AI will make a move at the next check of the timer.
 sub make_ai_move {
 	my ($self) = @_;
 
@@ -364,18 +397,21 @@ sub end_game {
 	$self->set_status($message);
 }
 
+# "Make Move" button callback
 sub _make_move_callback {
 	my ($button, $canvas) = @_;
 
 	$canvas->make_move();
 }
 
+# "Return Tiles to Rack" button callback
 sub _return_tiles_callback {
 	my ($button, $window) = @_;
 
 	$window->{canvas}->return_tiles_to_rack();
 }
 
+# "Replae Tiles" button callback
 sub _replace_tiles_callback {
 	my ($button, $window) = @_;
 
@@ -400,6 +436,7 @@ sub _replace_tiles_callback {
 	$window->{canvas}->replace_tiles();
 }
 
+# "Pass Turn" button callback
 sub _pass_turn_callback {
 	my ($button, $window) = @_;
 
@@ -413,6 +450,7 @@ sub _pass_turn_callback {
 	$window->make_ai_move();
 }
 
+# Timer callback for checking if an AI move needs to be made. See $self->make_ai_move().
 sub _ai_timer_callback {
 	my ($self) = @_;
 
@@ -449,6 +487,7 @@ sub _ai_timer_callback {
 	return 1;
 }
 
+# Key press callack; used for changing the letter on a blank tile.
 sub _handle_key {
 	my ($widget, $event, $canvas) = @_;
 
@@ -471,6 +510,7 @@ sub _handle_key {
 	}
 }
 
+# Callback when a new difficulty is selected on the intro screen via the radio buttons
 sub _difficulty_callback {
 	my ($button, $data) = @_;
 
@@ -482,6 +522,7 @@ sub _difficulty_callback {
 	}
 }
 
+# Callback when Help->About is selected in the menu
 sub _about_callback {
 	my ($menuitem, $window) = @_;
 
@@ -509,6 +550,7 @@ sub _resize_callback {
 	return 0;
 }
 
+# This gets called when we're exiting the game; save settings here.
 sub _destroy_callback {
 	my ($window) = @_;
 

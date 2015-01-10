@@ -1,3 +1,23 @@
+##########################################################################
+# GUI::Canvas
+# GUI element that draws the tiles, the board, and the player's rack.
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package GUI::Canvas;
 
 use strict;
@@ -55,12 +75,16 @@ sub new {
 	return $self;
 }
 
+# Makes it so clicking on the canvas has no effect (tiles can't be dragged around)
 sub set_disabled {
 	my ($self, $disabled) = @_;
 
 	$self->{disabled} = $disabled;
 }
 
+# Calling this puts the canvas into "Replace Tiles" mode, wher the user is prompted
+# to click on tile(s) in their rack that they want to replace with different tiles
+# from the bag. Calling this a second time makes the replacement actually happen.
 sub replace_tiles {
 	my ($self) = @_;
 
@@ -74,6 +98,7 @@ sub replace_tiles {
 	}
 }
 
+# Calling this ends "Replace Tiles" mode (see replace_tiles)
 sub end_replace_tiles {
 	my ($self) = @_;
 
@@ -104,6 +129,7 @@ sub end_replace_tiles {
 	$self->{tile_list} = [];
 }
 
+# OnMouseDown callback
 sub _handle_press {
 	my ($widget, $event, $canvas) = @_;
 
@@ -114,7 +140,7 @@ sub _handle_press {
 	return 1 unless $item;
 
 	my $group = $canvas->get_item_at($x, $y)->parent();
-	if ($group->isa('GUI::Tile')) {
+	if ($group->isa('GUI::Tile')) {		# The user clicked on a tile
 		my $tile = $group;
 		my $space = $tile->parent();
 		if ($canvas->{replace_tiles} && $event->button() == 1) {
@@ -133,7 +159,7 @@ sub _handle_press {
 		}
 		elsif (!$canvas->{dragging}) {
 			if ($event->button() == 1) {
-				# Left click; initiate tile dragging
+				# Left click; initiate tile dragging if no tile is currently being dragged.
 				if (!$tile->get_tile()->is_on_board()) {
 					$tile->reparent($canvas->root);
 					$tile->set(x => $x - $canvas->{side}/2, y => $y - $canvas->{side}/2);
@@ -159,6 +185,8 @@ sub _handle_press {
 	return 1;
 }
 
+# Callback for mouse movement. If the user is dragging a tile (and the canvas is not disabled),
+# handles redrawing the dragged tile at the cursor's location.
 sub _handle_drag {
 	my ($widget, $event, $canvas) = @_;
 
@@ -176,16 +204,19 @@ sub _handle_drag {
 	return 1;
 }
 
+# OnMouseUp callback
 sub _handle_release {
 	my ($widget, $event, $canvas) = @_;
 
 	return 1 if $canvas->{disabled};
 
 	if ($canvas->{dragging}) {
+		# The user was dragging a tile. If this release happens above an empty space, we want to put the
+		# tile there; otherwise, return the tile to the space it came from.
 		my $tile = $canvas->{dragging}{tile};
 		my $source = $canvas->{dragging}{source};
 
-		# A bit hacky; temporarily hide the tile being dragged so we can get what's underneath.
+		# HACK: temporarily hide the tile being dragged so we can get what's underneath.
 		$tile->hide();
 
 		my ($x, $y) = $event->get_coords();
@@ -252,6 +283,7 @@ sub return_tiles_to_rack {
 	});
 }
 
+# Refreshes the players' racks and continues onto the next turn
 sub next_turn {
 	my ($self) = @_;
 
@@ -263,6 +295,7 @@ sub next_turn {
 	}
 }
 
+# Returns value: (x, y), the dimensions of the canvas in pixels
 sub get_dimensions {
 	my ($self) = @_;
 
@@ -270,6 +303,7 @@ sub get_dimensions {
 	return ($allocation->width(), $allocation->height());
 }
 
+# This gets called when the user presses the "Make Move" button
 sub make_move {
 	my ($self) = @_;
 
@@ -312,6 +346,7 @@ sub make_move {
 	}
 }
 
+# Refreshes the canvas and all elements therein.
 sub draw {
 	my ($self) = @_;
 

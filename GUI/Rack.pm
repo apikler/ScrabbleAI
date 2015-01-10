@@ -1,3 +1,23 @@
+##########################################################################
+# GUI::Rack
+# Canvas element that draws the user's rack of tiles.
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package GUI::Rack;
 
 use strict;
@@ -16,6 +36,7 @@ use Data::Dumper;
 
 use constant NUM_SPACES => 9;
 
+#	$rack: The Backend::Rack
 sub new {
 	my ($class, $root, $rack, $coords) = @_;
 
@@ -44,6 +65,8 @@ sub new {
 	return $self;
 }
 
+# Ensures all the tiles currently held by the player (according to Backend::Rack) are
+# drawn and visible.
 sub refresh {
 	my ($self) = @_;
 
@@ -55,6 +78,7 @@ sub refresh {
 	}
 }
 
+# Returns 1 if the given Backend::Tile has already been drawn in any space on this rack.
 sub _tile_drawn {
 	my ($self, $tile) = @_;
 
@@ -67,6 +91,8 @@ sub _tile_drawn {
 	return 0;
 }
 
+# Returns the leftmost GUI::RackSpace that doesn't currently have a tile in it.
+# Returns undef if no GUI::RackSpace is empty.
 sub get_first_empty_space {
 	my ($self) = @_;
 
@@ -77,6 +103,10 @@ sub get_first_empty_space {
 	return undef;
 }
 
+# Calling this causes the Backend::Rack to reflect the tiles that are currently in
+# the GUI::Rack. For example, if the user has moved tiles onto the board such that the rack
+# only has 3 remaining GUI::Tiles, calling this would cause the Backend::Rack to also contain
+# the 3 corresponding Backend::Tiles.
 sub commit {
 	my ($self) = @_;
 

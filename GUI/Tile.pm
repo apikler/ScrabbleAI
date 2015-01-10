@@ -1,3 +1,23 @@
+##########################################################################
+# GUI::Tile
+# Canvas element that represents a letter tile
+#
+# Copyright (C) 2015 Andrew Pikler
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##########################################################################
+
 package GUI::Tile;
 
 use strict;
@@ -11,6 +31,7 @@ use Gnome2::Canvas;
 
 use GUI::Utils;
 
+# $tile: The Backend::Tile that cooresponds to this GUI::Tile
 sub new {
 	my ($class, $root, $tile) = @_;
 
@@ -32,6 +53,7 @@ sub new {
 	return $self;
 }
 
+# Returns the Backend::Tile that corresponds to this GUI::Tile
 sub get_tile {
 	my ($self) = @_;
 
@@ -46,6 +68,7 @@ sub is_committed {
 	return $self->{tile}->is_on_board();
 }
 
+# Refreshes the letter and value displayed for the user to match the Backend::Tile.
 sub refresh_text {
 	my ($self) = @_;
 
@@ -79,6 +102,7 @@ sub refresh_text {
 	}
 }
 
+# $side: Side length of this tile in pixels
 sub draw {
 	my ($self, $side) = @_;
 
