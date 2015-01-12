@@ -1,6 +1,6 @@
 ## ScrabbleAI
 
-An application for Linux that lets you play the popular word game against a computer opponent.
+An application for Linux that lets you play the popular word game against a computer opponent at varying difficulties.
 
 ### Usage
 
@@ -14,8 +14,10 @@ Then run:
 
 ### Screenshots
 
+* The [intro screen](https://raw.githubusercontent.com/apikler/ScrabbleAI/master/screenshots/intro_screen.png), where you can choose the difficulty
+* The main [game screen](https://raw.githubusercontent.com/apikler/ScrabbleAI/master/screenshots/game_screen.png)
+* A [completed game](https://raw.githubusercontent.com/apikler/ScrabbleAI/master/screenshots/finished_game.png)
 
-
-
+<br /><br />
 <b>Disclaimer</b><br />
 <sub>Scrabble is a registered trademark belonging to Hasbro Inc in the US, and to J.W. Spear & Sons Ltd., a subsidiary of Mattel Inc., throughout the rest of the world. Neither the author nor this game are affiliated iwth the Scrabble Crossword Game, Hasbro, Spear & Sons, or Mattel in any fashion.</sub>
