@@ -14,9 +14,18 @@ Then run:
 
 ### Screenshots
 
-* The [intro screen](https://raw.githubusercontent.com/apikler/ScrabbleAI/master/screenshots/intro_screen.png), where you can choose the difficulty
-* The main [game screen](https://raw.githubusercontent.com/apikler/ScrabbleAI/master/screenshots/game_screen.png)
-* A [completed game](https://raw.githubusercontent.com/apikler/ScrabbleAI/master/screenshots/finished_game.png)
+* The [intro screen](http://apikler.github.io/ScrabbleAI/intro_screen.png), where you can choose the difficulty
+* The main [game screen](http://apikler.github.io/ScrabbleAI/game_screen.png)
+* A [completed game](http://apikler.github.io/ScrabbleAI/finished_game.png)
+
+### Videos
+
+* The AI [makes a move](http://apikler.github.io/ScrabbleAI/ai_move.html)
+* [Resizing the window](http://apikler.github.io/ScrabbleAI/resize.html)
+
+### The AI
+
+The AI is based on an algorithm from a paper written by Andrew W. Appel and Guy J. Jacobson, which you can find [here](http://www.cs.cmu.edu/afs/cs/academic/class/15451-s06/www/lectures/scrabble.pdf).
 
 <br /><br />
 <b>Disclaimer</b><br />
