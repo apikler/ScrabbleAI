@@ -49,6 +49,38 @@ use constant {
 	MINIMUM_WIDTH => 400,
 };
 
+# The HTML used in the 'help' popup
+my $HELP_MARKUP = <<'MARKUP';
+This game follows the rules of Scrabble, the popular word game. If you are unfamiliar
+with its rules, please take some time to look them up online.
+
+The game begins with your turn; you will need to click and drag tiles from your rack
+to create a word, one letter of which must lie on the middle tile of the board.
+Once you click "Make Move", your move will be scored, and the AI will make a move.
+Turns will alternate until no more moves can be made, at which point the game ends.
+
+<b>Blank Tiles</b> - To set the letter on a blank tile, right click it, and then
+press the key on your keyboard corresponding to the letter you desire. You may
+also hit any non-letter key to reset the tile to its blank state.
+
+The following four buttons appear to the right of the game board:
+
+<b>Pass Turn</b> - Skips your turn. Use this if you cannot make a move (for example,
+if you have no more letters left).
+
+<b>Replace Tiles</b> - Allows you to pick tiles from your rack to replace with new
+tiles from the bag. This action uses up your turn.
+
+<b>Return Tiles to Rack</b> - Returns to your rack any tiles you have placed onto
+the board this turn.
+
+<b>Make Move</b> - Attempts to make a move based on the letters you have played.
+Your move will be rejected if it is illegal or contains invalid words, but you
+will not be penalized.
+
+Thank you for playing, and enjoy your game!
+MARKUP
+
 # The HTML used in the 'about' popup
 my $ABOUT_MARKUP = <<'MARKUP';
 Copyright (C) 2015 Andrew Pikler
@@ -283,6 +315,7 @@ sub draw_menu_bar {
 	my $menubar = Gtk2::MenuBar->new();
 	$self->{menubar} = $menubar;
 	
+	# 'File' menu
 	my $filemenu = Gtk2::Menu->new();
 
 	my $new_game_item = Gtk2::ImageMenuItem->new('_New Game');
@@ -293,18 +326,23 @@ sub draw_menu_bar {
 	$filemenu->append(Gtk2::SeparatorMenuItem->new());
 
 	my $quit_item = Gtk2::ImageMenuItem->new_from_stock('gtk-quit', undef);
-	$quit_item->signal_connect(activate => sub { Gtk2->main_quit(); });
+	$quit_item->signal_connect(activate => sub { $self->_destroy_callback(); });
 	$filemenu->append($quit_item);
 	
 	my $filemenu_item = Gtk2::MenuItem->new('_File');
 	$filemenu_item->set_submenu($filemenu);
 	$menubar->append($filemenu_item);
 	
+	# 'Help' menu
 	my $helpmenu = Gtk2::Menu->new();
+	my $help_item = Gtk2::ImageMenuItem->new_from_stock('gtk-help', undef);
+	$help_item->signal_connect(activate => sub { $self->simple_dialog('Help', $HELP_MARKUP); });
+	$helpmenu->append($help_item);
+
 	my $about_item = Gtk2::ImageMenuItem->new_from_stock('gtk-about', undef);
-	$about_item->signal_connect(activate => \&_about_callback, $self);
+	$about_item->signal_connect(activate => sub { $self->simple_dialog('About', $ABOUT_MARKUP); });
 	$helpmenu->append($about_item);
-	
+
 	my $helpmenu_item = Gtk2::MenuItem->new('_Help');
 	$helpmenu_item->set_submenu($helpmenu);
 	$menubar->append($helpmenu_item);
@@ -395,6 +433,23 @@ sub end_game {
 	$dialog->destroy();
 
 	$self->set_status($message);
+}
+
+# Displays a simple popup dialog with the given title and markup.
+sub simple_dialog {
+	my ($self, $title, $markup) = @_;
+
+	my $dialog = Gtk2::Dialog->new($title, $self, 'destroy-with-parent',
+		'gtk-close' => 'close',
+	);
+
+	my $label = Gtk2::Label->new();
+	$label->set_markup($markup);
+	$dialog->get_content_area()->add($label);
+
+	$dialog->show_all();
+	$dialog->run();
+	$dialog->destroy();
 }
 
 # "Make Move" button callback
@@ -520,23 +575,6 @@ sub _difficulty_callback {
 
 		$window->{settings}{difficulty} = $difficulty;
 	}
-}
-
-# Callback when Help->About is selected in the menu
-sub _about_callback {
-	my ($menuitem, $window) = @_;
-
-	my $dialog = Gtk2::Dialog->new("About", $window, 'destroy-with-parent',
-		'gtk-close' => 'close',
-	);
-
-	my $label = Gtk2::Label->new();
-	$label->set_markup($ABOUT_MARKUP);
-	$dialog->get_content_area()->add($label);
-
-	$dialog->show_all();
-	$dialog->run();
-	$dialog->destroy();
 }
 
 sub _resize_callback {
