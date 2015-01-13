@@ -10,13 +10,14 @@ On Debian/Ubuntu/Linux Mint, first install the dependencies:
 
 Then run:
 
-    $ perl scrabble.pl
+    $ perl scrabbleai.pl
 
 ### Screenshots
 
 * The [intro screen](http://apikler.github.io/ScrabbleAI/intro_screen.png), where you can choose the difficulty
 * The main [game screen](http://apikler.github.io/ScrabbleAI/game_screen.png)
 * A [completed game](http://apikler.github.io/ScrabbleAI/finished_game.png)
+* The [help dialog](http://apikler.github.io/ScrabbleAI/help_dialog.png)
 
 ### Videos
 
