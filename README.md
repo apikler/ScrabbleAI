@@ -30,4 +30,4 @@ The AI is based on an algorithm from a paper written by Andrew W. Appel and Guy 
 
 <br /><br />
 <b>Disclaimer</b><br />
-<sub>Scrabble is a registered trademark belonging to Hasbro Inc in the US, and to J.W. Spear & Sons Ltd., a subsidiary of Mattel Inc., throughout the rest of the world. Neither the author nor this game are affiliated iwth the Scrabble Crossword Game, Hasbro, Spear & Sons, or Mattel in any fashion.</sub>
+<sub>Scrabble is a registered trademark belonging to Hasbro Inc in the US, and to J.W. Spear & Sons Ltd., a subsidiary of Mattel Inc., throughout the rest of the world. Neither the author nor this game are affiliated with the Scrabble Crossword Game, Hasbro, Spear & Sons, or Mattel in any fashion.</sub>
