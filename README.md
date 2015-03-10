@@ -8,7 +8,11 @@ On Debian/Ubuntu/Linux Mint, first install the dependencies:
 
     $ sudo apt-get install libgtk2-perl libgnome2-canvas-perl
 
-Then run:
+Alternatively, on Fedora:
+
+    $ sudo yum install perl-Gtk2 perl-Gnome2-Canvas
+
+Once you have installed the dependencies, run:
 
     $ perl scrabbleai.pl
 
