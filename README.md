@@ -16,6 +16,8 @@ Once you have installed the dependencies, run:
 
     $ perl scrabbleai.pl
 
+Note that the first time you start a new game, it will take longer than usual to launch as the dictionary is cached for future use. Subsequent games (even after relaunching the program) will be able to skip this step and start up faster.
+
 ### Screenshots
 
 * The [intro screen](http://apikler.github.io/ScrabbleAI/intro_screen.png), where you can choose the difficulty
